@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 // #include <time.h>
 
@@ -7,6 +8,7 @@
 
 
 static int random_in(int min, int max) {
+  assert(max >= min);
   return min + rand() / (RAND_MAX / (max - min + 1) + 1);
 }
 
@@ -49,7 +51,7 @@ int main(void) {
   hlc_set_print(set);
   hlc_set_dot(set, stdout);
 
-  for (size_t i = 0; i <= N; ++i) {
+  for (size_t i = 0; i < N; ++i) {
     hlc_set_remove(set, ys[i]);
     printf("After removing %g: [%zu] ", ys[i], hlc_set_count(set));
     hlc_set_print(set);
