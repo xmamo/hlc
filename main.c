@@ -1,7 +1,7 @@
 #include <assert.h>
-#include <stdlib.h>
 
 #include "set.h"
+#include "stack.h"
 
 
 static int random_in(int min, int max) {
@@ -34,7 +34,7 @@ int main(void) {
     shuffle(xs, 10000);
     shuffle(ys, 10000);
 
-    hlc_Set* set = alloca(hlc_set_layout.size);
+    hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
     hlc_set_make(set);
 
     for (size_t j = 0; j < 10000; ++j) {
@@ -48,6 +48,8 @@ int main(void) {
     }
 
     assert(hlc_set_count(set) == 0);
+
+    HLC_STACK_FREE(set);
   }
 
   return EXIT_SUCCESS;
