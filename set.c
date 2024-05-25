@@ -99,7 +99,11 @@ bool hlc_set_remove(hlc_Set* set, double value) {
       node = hlc_avl_right(node);
     } else {
       node = hlc_avl_remove(node);
-      set->root = node != NULL ? hlc_avl_root(node) : NULL;
+
+      if (node == NULL || hlc_avl_parent(node) == NULL) {
+        set->root = NULL;
+      }
+
       return true;
     }
   }

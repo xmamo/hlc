@@ -537,13 +537,24 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     return hlc_avl_update_after_removal(x);
   } else {
     //   N            X
-    //  / \          / \
-    // a   Y    =>  a   Y
-    //    / \          / \
-    //   X   b        N   b
+    //  / \          / \           X
+    // a   Z        a   Z         / \
+    //    / \          / \       a   Z
+    //   Y   d  =>    Y   d  =>     / \
+    //  / \          / \           Y   d
+    // X   c        N   c         / \
+    //  \            \           b   c
+    //   b            b
 
-    hlc_avl_swap(node, hlc_avl_leftmost(node->right));
-    return hlc_avl_remove(node);
+    hlc_AVL* parent = node->parent;
+    hlc_AVL* x = hlc_avl_swap(node, hlc_avl_leftmost(node->right));
+    hlc_avl_remove(node);
+
+    while (x->parent != parent) {
+      x = x->parent;
+    }
+
+    return x;
   }
 }
 
