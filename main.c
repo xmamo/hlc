@@ -1,10 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
-// #include <time.h>
 
 #include "set.h"
-
-#define N (100)
 
 
 static int random_in(int min, int max) {
@@ -24,40 +21,34 @@ static void shuffle(double* xs, size_t count) {
 
 
 int main(void) {
-  double xs[N];
-  double ys[N];
+  for (unsigned i = 0; i < 100; ++i) {
+    double xs[10000];
+    double ys[10000];
 
-  for (size_t i = 0; i < N; ++i) {
-    xs[i] = i;
-    ys[i] = i;
+    for (size_t j = 0; j < 10000; ++j) {
+      xs[j] = j;
+      ys[j] = j;
+    }
+
+    srand(i);
+    shuffle(xs, 10000);
+    shuffle(ys, 10000);
+
+    hlc_Set* set = alloca(hlc_set_layout.size);
+    hlc_set_make(set);
+
+    for (size_t j = 0; j < 10000; ++j) {
+      hlc_set_insert(set, xs[j]);
+    }
+
+    assert(hlc_set_count(set) == 10000);
+
+    for (size_t j = 0; j < 10000; ++j) {
+      hlc_set_remove(set, ys[j]);
+    }
+
+    assert(hlc_set_count(set) == 0);
   }
-
-  // struct timespec ts;
-  // timespec_get(&ts, TIME_UTC);
-  // srand(ts.tv_sec);
-
-  srand(0);
-  shuffle(xs, N);
-  shuffle(ys, N);
-
-  hlc_Set* set = alloca(hlc_set_layout.size);
-  hlc_set_make(set);
-
-  for (size_t i = 0; i < N; ++i) {
-    hlc_set_insert(set, xs[i]);
-  }
-
-  printf("[%zu] ", hlc_set_count(set));
-  hlc_set_print(set);
-  hlc_set_dot(set, stdout);
-
-  for (size_t i = 0; i < N; ++i) {
-    hlc_set_remove(set, ys[i]);
-    printf("After removing %g: [%zu] ", ys[i], hlc_set_count(set));
-    hlc_set_print(set);
-  }
-
-  hlc_set_dot(set, stdout);
 
   return EXIT_SUCCESS;
 }
