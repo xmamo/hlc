@@ -4,6 +4,8 @@
 #include <stdalign.h>
 #include <stdio.h>
 
+#include "math.h"
+
 
 struct hlc_Set {
   hlc_AVL* root;
@@ -36,47 +38,27 @@ bool hlc_set_insert(hlc_Set* set, double value) {
 
     while (true) {
       double* node_value_ref = hlc_avl_value_ref(node);
+      int ordering = HLC_COMPARE(value, *node_value_ref);
 
-      if (value < *node_value_ref) {
-        hlc_AVL* node_left = hlc_avl_link(node, -1);
-
-        if (node_left == NULL) {
-          node = hlc_avl_insert(node, -1, value);
-
-          if (node != NULL) {
-            if (hlc_avl_link(node, 0) == NULL) {
-              set->root = node;
-            }
-
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          node = node_left;
-        }
-      } else if (value > *node_value_ref) {
-        hlc_AVL* node_right = hlc_avl_link(node, +1);
-
-        if (node_right == NULL) {
-          node = hlc_avl_insert(node, +1, value);
-
-          if (node != NULL) {
-            if (hlc_avl_link(node, 0) == NULL) {
-              set->root = node;
-            }
-
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          node = node_right;
-        }
-      } else {
+      if (ordering == 0) {
         *node_value_ref = value;
         return true;
       }
+
+      hlc_AVL* node_child = hlc_avl_link(node, ordering);
+
+      if (node_child == NULL) {
+        node = hlc_avl_insert(node, ordering, value);
+        bool success = node != NULL;
+
+        if (success && hlc_avl_link(node, 0) == NULL) {
+          set->root = node;
+        }
+
+        return success;
+      }
+
+      node = node_child;
     }
   } else {
     set->root = hlc_avl_new(value);
@@ -92,12 +74,9 @@ bool hlc_set_remove(hlc_Set* set, double value) {
 
   while (node != NULL) {
     double node_value = *hlc_avl_value_ref(node);
+    int ordering = HLC_COMPARE(value, node_value);
 
-    if (value < node_value) {
-      node = hlc_avl_link(node, -1);
-    } else if (value > node_value) {
-      node = hlc_avl_link(node, +1);
-    } else {
+    if (ordering == 0) {
       node = hlc_avl_remove(node);
 
       if (node == NULL || hlc_avl_link(node, 0) == NULL) {
@@ -106,6 +85,8 @@ bool hlc_set_remove(hlc_Set* set, double value) {
 
       return true;
     }
+
+    node = hlc_avl_link(node, ordering);
   }
 
   return false;

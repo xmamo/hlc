@@ -21,4 +21,6 @@
 
 #define HLC_CLAMP(x, min, max) ((x) < (min) ? (min) : (x) > (max) ? (max) : (x))
 
+#define HLC_COMPARE(x, y) ((x) < (y) ? -1 : (x) > (y) ? +1 : 0)
+
 #endif
