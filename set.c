@@ -38,13 +38,13 @@ bool hlc_set_insert(hlc_Set* set, double value) {
       double* node_value_ref = hlc_avl_value_ref(node);
 
       if (value < *node_value_ref) {
-        hlc_AVL* node_left = hlc_avl_left(node);
+        hlc_AVL* node_left = hlc_avl_link(node, -1);
 
         if (node_left == NULL) {
-          node = hlc_avl_insert_left(node, value);
+          node = hlc_avl_insert(node, -1, value);
 
           if (node != NULL) {
-            if (hlc_avl_parent(node) == NULL) {
+            if (hlc_avl_link(node, 0) == NULL) {
               set->root = node;
             }
 
@@ -56,13 +56,13 @@ bool hlc_set_insert(hlc_Set* set, double value) {
           node = node_left;
         }
       } else if (value > *node_value_ref) {
-        hlc_AVL* node_right = hlc_avl_right(node);
+        hlc_AVL* node_right = hlc_avl_link(node, +1);
 
         if (node_right == NULL) {
-          node = hlc_avl_insert_right(node, value);
+          node = hlc_avl_insert(node, +1, value);
 
           if (node != NULL) {
-            if (hlc_avl_parent(node) == NULL) {
+            if (hlc_avl_link(node, 0) == NULL) {
               set->root = node;
             }
 
@@ -94,13 +94,13 @@ bool hlc_set_remove(hlc_Set* set, double value) {
     double node_value = *hlc_avl_value_ref(node);
 
     if (value < node_value) {
-      node = hlc_avl_left(node);
+      node = hlc_avl_link(node, -1);
     } else if (value > node_value) {
-      node = hlc_avl_right(node);
+      node = hlc_avl_link(node, +1);
     } else {
       node = hlc_avl_remove(node);
 
-      if (node == NULL || hlc_avl_parent(node) == NULL) {
+      if (node == NULL || hlc_avl_link(node, 0) == NULL) {
         set->root = NULL;
       }
 
@@ -116,10 +116,10 @@ void hlc_set_print(const hlc_Set* set) {
   const hlc_AVL* node = set->root;
 
   if (node != NULL) {
-    node = hlc_avl_leftmost(node);
+    node = hlc_avl_xmost(node, -1);
     printf("%g", *hlc_avl_value_ref(node));
 
-    while ((node = hlc_avl_successor(node)) != NULL) {
+    while ((node = hlc_avl_xcessor(node, +1)) != NULL) {
       printf(", %g", *hlc_avl_value_ref(node));
     }
   }

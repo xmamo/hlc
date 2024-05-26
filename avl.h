@@ -20,45 +20,19 @@ size_t hlc_avl_count(const hlc_AVL* root);
 size_t hlc_avl_height(const hlc_AVL* root);
 
 /// @memberof hlc_AVL
-/// @brief Gets the left child of this node.
+/// @brief Gets the left/right child or the parent of this node.
+/// @param direction -1 for the left child, 0 for the parent, +1 for the right child.
 /// @pre node != NULL
-hlc_AVL* hlc_avl_left(const hlc_AVL* node);
+hlc_AVL* hlc_avl_link(const hlc_AVL* node, signed char direction);
 
 /// @memberof hlc_AVL
-/// @brief Gets the left child of this node.
+/// @brief Gets the left/right child or the parent of this node.
+/// @param direction -1 for the left child, 0 for the parent, +1 for the right child.
 /// @pre node != NULL
-#define hlc_avl_left(node) _Generic(                \
-  true ? (node) : (void*)(node),                    \
-  void*: hlc_avl_left((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_left((node)) \
-)
-
-/// @memberof hlc_AVL
-/// @brief Gets the right child of this node.
-/// @pre node != NULL
-hlc_AVL* hlc_avl_right(const hlc_AVL* node);
-
-/// @memberof hlc_AVL
-/// @brief Gets the right child of this node.
-/// @pre node != NULL
-#define hlc_avl_right(node) _Generic(                \
-  true ? (node) : (void*)(node),                     \
-  void*: hlc_avl_right((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_right((node)) \
-)
-
-/// @memberof hlc_AVL
-/// @brief Gets the parent of this node.
-/// @pre node != NULL
-hlc_AVL* hlc_avl_parent(const hlc_AVL* node);
-
-/// @memberof hlc_AVL
-/// @brief Gets the parent of this node.
-/// @pre node != NULL
-#define hlc_avl_parent(node) _Generic(                \
-  true ? (node) : (void*)(node),                      \
-  void*: hlc_avl_parent((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_parent((node)) \
+#define hlc_avl_link(node, direction) _Generic(                  \
+  true ? (node) : (void*)(node),                                 \
+  void*: hlc_avl_link((node), (direction)),                      \
+  const void*: (const hlc_AVL*)hlc_avl_link((node), (direction)) \
 )
 
 /// @memberof hlc_AVL
@@ -76,91 +50,49 @@ double* hlc_avl_value_ref(const hlc_AVL* node);
 )
 
 /// @memberof hlc_AVL
-/// @brief Gets to the root of this tree.
+/// @brief Gets to the leftmost/topmost/rightmost node of this subtree.
+/// @param direction -1 for the leftmost node, 0 for the topmost node, +1 for the rightmost node.
 /// @pre node != NULL
-hlc_AVL* hlc_avl_root(const hlc_AVL* node);
+hlc_AVL* hlc_avl_xmost(const hlc_AVL* node, signed char direction);
 
 /// @memberof hlc_AVL
-/// @brief Gets to the root of this tree.
+/// @brief Gets to the leftmost/topmost/rightmost node of this subtree.
+/// @param direction -1 for the leftmost node, 0 for the topmost node, +1 for the rightmost node.
 /// @pre node != NULL
-#define hlc_avl_root(node) _Generic(                \
-  true ? (node) : (void*)(node),                    \
-  void*: hlc_avl_root((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_root((node)) \
+#define hlc_avl_xmost(node, direction) _Generic(                  \
+  true ? (node) : (void*)(node),                                  \
+  void*: hlc_avl_xmost((node), (direction)),                      \
+  const void*: (const hlc_AVL*)hlc_avl_xmost((node), (direction)) \
 )
 
 /// @memberof hlc_AVL
-/// @brief Gets to the leftmost node of this subtree.
+/// @brief Gets the in-order predecessor/successor of this node.
+/// @param direction -1 for the predecessor, +1 for the successor.
 /// @pre node != NULL
-hlc_AVL* hlc_avl_leftmost(const hlc_AVL* node);
+hlc_AVL* hlc_avl_xcessor(const hlc_AVL* node, signed char direction);
 
 /// @memberof hlc_AVL
-/// @brief Gets to the leftmost node of this subtree.
+/// @brief Gets the in-order predecessor/successor of this node.
+/// @param direction -1 for the predecessor, +1 for the successor.
 /// @pre node != NULL
-#define hlc_avl_leftmost(node) _Generic(                \
-  true ? (node) : (void*)(node),                        \
-  void*: hlc_avl_leftmost((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_leftmost((node)) \
+#define hlc_avl_xcessor(node, direction) _Generic(                  \
+  true ? (node) : (void*)(node),                                    \
+  void*: hlc_avl_xcessor((node), (direction)),                      \
+  const void*: (const hlc_AVL*)hlc_avl_xcessor((node), (direction)) \
 )
 
 /// @memberof hlc_AVL
-/// @brief Gets to the rightmost node of this subtree.
-/// @pre node != NULL
-hlc_AVL* hlc_avl_rightmost(const hlc_AVL* node);
-
-/// @memberof hlc_AVL
-/// @brief Gets to the rightmost node of this subtree.
-/// @pre node != NULL
-#define hlc_avl_rightmost(node) _Generic(                \
-  true ? (node) : (void*)(node),                         \
-  void*: hlc_avl_rightmost((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_rightmost((node)) \
-)
-
-/// @memberof hlc_AVL
-/// @brief Gets the in-order predecessor of this node.
-/// @pre node != NULL
-hlc_AVL* hlc_avl_predecessor(const hlc_AVL* node);
-
-/// @memberof hlc_AVL
-/// @brief Gets the in-order predecessor of this node.
-/// @pre node != NULL
-#define hlc_avl_predecessor(node) _Generic(                \
-  true ? (node) : (void*)(node),                           \
-  void*: hlc_avl_predecessor((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_predecessor((node)) \
-)
-
-/// @memberof hlc_AVL
-/// @brief Gets the in-order successor of this node.
-/// @pre node != NULL
-hlc_AVL* hlc_avl_successor(const hlc_AVL* node);
-
-/// @memberof hlc_AVL
-/// @brief Gets the in-order successor of this node.
-/// @pre node != NULL
-#define hlc_avl_successor(node) _Generic(                \
-  true ? (node) : (void*)(node),                         \
-  void*: hlc_avl_successor((node)),                      \
-  const void*: (const hlc_AVL*)hlc_avl_successor((node)) \
-)
-
-/// @memberof hlc_AVL
-/// @brief Inserts a new node to the left of this node.
+/// @brief Inserts a new node to the left/right of this node.
+/// @param direction -1 to insert to the left, +1 to insert to the right.
 /// @return The new root of the subtree where the node was inserted, after rebalancing.
-/// @pre node != NULL && hlc_avl_left(node) == NULL
-hlc_AVL* hlc_avl_insert_left(hlc_AVL* node, double value);
+/// @pre node != NULL && hlc_avl_link(node, direction) == NULL
+hlc_AVL* hlc_avl_insert(hlc_AVL* node, signed char direction, double value);
 
 /// @memberof hlc_AVL
-/// @brief Inserts a new node to the right of this node.
+/// @brief Inserts a new node to the left/right of this node.
+/// @param direction -1 to insert to the left, +1 to insert to the right.
 /// @return The new root of the subtree where the node was inserted, after rebalancing.
-/// @pre node != NULL && hlc_avl_right(node) == NULL
-hlc_AVL* hlc_avl_insert_right(hlc_AVL* node, double value);
-
-/// @memberof hlc_AVL
-/// @brief Removes this node from its tree.
-/// @return The new root of the subtree where the node was removed, after rebalancing.
-/// @pre node != NULL
+/// @pre node != NULL && hlc_avl_link(node, direction) == NULL
 hlc_AVL* hlc_avl_remove(hlc_AVL* node);
 
 /// @memberof hlc_AVL
