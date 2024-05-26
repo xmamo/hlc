@@ -144,7 +144,7 @@ static hlc_AVL* hlc_avl_rotate(hlc_AVL* xy, signed char direction) {
     b->direction *= -1;
   }
 
-  //                                                |
+  //                       -1                       |                     +1
   // -----------------------------------------------|--------------------------------------------
   // X0_b = Y0_h - a_h                              | Y0_b = c_h - X0_h
   // X1_b = b_h - a_h                               | Y1_b = c_h - b_h
@@ -161,7 +161,7 @@ static hlc_AVL* hlc_avl_rotate(hlc_AVL* xy, signed char direction) {
   xy->direction = -yx_direction;
   xy->balance = xy_balance + direction * (HLC_MAX(0, -direction * yx_balance) + 1);
 
-  //                                                |
+  //                       -1                       |                     +1
   // -----------------------------------------------|--------------------------------------------
   // Y0_b = c_h - b_h                               | X0_b = b_h - a_h
   // Y1_b = c_h - X1_h                              | X1_b = Y1_h - a_h
@@ -236,58 +236,6 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
 }
 
 
-static hlc_AVL* hlc_avl_swap(hlc_AVL* x, hlc_AVL* y) {
-  assert(x != NULL);
-  assert(y != NULL);
-
-  hlc_AVL* x_left = HLC_AVL_LINKS(x)[-1];
-  hlc_AVL* x_right = HLC_AVL_LINKS(x)[+1];
-  hlc_AVL* x_parent = HLC_AVL_LINKS(x)[0];
-  signed char x_direction = x->direction;
-  signed char x_balance = x->balance;
-
-  HLC_AVL_LINKS(x)[-1] = HLC_AVL_LINKS(y)[-1];
-  HLC_AVL_LINKS(x)[+1] = HLC_AVL_LINKS(y)[+1];
-  HLC_AVL_LINKS(x)[0] = HLC_AVL_LINKS(y)[0];
-  x->balance = y->balance;
-  x->direction = y->direction;
-
-  if (HLC_AVL_LINKS(x)[-1] != NULL) {
-    HLC_AVL_LINKS(HLC_AVL_LINKS(x)[-1])[0] = x;
-  }
-
-  if (HLC_AVL_LINKS(x)[+1] != NULL) {
-    HLC_AVL_LINKS(HLC_AVL_LINKS(x)[+1])[0] = x;
-  }
-
-  if (HLC_AVL_LINKS(x)[0] != NULL) {
-    assert(x->direction == -1 || x->direction == +1);
-    HLC_AVL_LINKS(HLC_AVL_LINKS(x)[0])[x->direction] = x;
-  }
-
-  HLC_AVL_LINKS(y)[-1] = x_left;
-  HLC_AVL_LINKS(y)[0] = x_parent;
-  HLC_AVL_LINKS(y)[+1] = x_right;
-  y->balance = x_balance;
-  y->direction = x_direction;
-
-  if (HLC_AVL_LINKS(y)[-1] != NULL) {
-    HLC_AVL_LINKS(HLC_AVL_LINKS(y)[-1])[0] = y;
-  }
-
-  if (HLC_AVL_LINKS(y)[+1] != NULL) {
-    HLC_AVL_LINKS(HLC_AVL_LINKS(y)[+1])[0] = y;
-  }
-
-  if (HLC_AVL_LINKS(y)[0] != NULL) {
-    assert(y->direction == -1 || y->direction == +1);
-    HLC_AVL_LINKS(HLC_AVL_LINKS(y)[0])[y->direction] = y;
-  }
-
-  return y;
-}
-
-
 static hlc_AVL* hlc_avl_update_after_insertion(hlc_AVL* node) {
   assert(node != NULL);
 
@@ -348,7 +296,6 @@ hlc_AVL* hlc_avl_insert(hlc_AVL* node, signed char direction, double value) {
     new->value = value;
 
     HLC_AVL_LINKS(node)[direction] = new;
-
     return hlc_avl_update_after_insertion(new);
   } else {
     return NULL;
@@ -471,6 +418,56 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     y->balance += 1;
 
     return hlc_avl_update_after_removal(y, x);
+  }
+}
+
+
+void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2) {
+  assert(node1 != NULL);
+  assert(node2 != NULL);
+
+  hlc_AVL* node1_left = HLC_AVL_LINKS(node1)[-1];
+  hlc_AVL* node1_right = HLC_AVL_LINKS(node1)[+1];
+  hlc_AVL* node1_parent = HLC_AVL_LINKS(node1)[0];
+  signed char node1_direction = node1->direction;
+  signed char node1_balance = node1->balance;
+
+  HLC_AVL_LINKS(node1)[-1] = HLC_AVL_LINKS(node2)[-1];
+  HLC_AVL_LINKS(node1)[+1] = HLC_AVL_LINKS(node2)[+1];
+  HLC_AVL_LINKS(node1)[0] = HLC_AVL_LINKS(node2)[0];
+  node1->balance = node2->balance;
+  node1->direction = node2->direction;
+
+  if (HLC_AVL_LINKS(node1)[-1] != NULL) {
+    HLC_AVL_LINKS(HLC_AVL_LINKS(node1)[-1])[0] = node1;
+  }
+
+  if (HLC_AVL_LINKS(node1)[+1] != NULL) {
+    HLC_AVL_LINKS(HLC_AVL_LINKS(node1)[+1])[0] = node1;
+  }
+
+  if (HLC_AVL_LINKS(node1)[0] != NULL) {
+    assert(node1->direction == -1 || node1->direction == +1);
+    HLC_AVL_LINKS(HLC_AVL_LINKS(node1)[0])[node1->direction] = node1;
+  }
+
+  HLC_AVL_LINKS(node2)[-1] = node1_left;
+  HLC_AVL_LINKS(node2)[0] = node1_parent;
+  HLC_AVL_LINKS(node2)[+1] = node1_right;
+  node2->balance = node1_balance;
+  node2->direction = node1_direction;
+
+  if (HLC_AVL_LINKS(node2)[-1] != NULL) {
+    HLC_AVL_LINKS(HLC_AVL_LINKS(node2)[-1])[0] = node2;
+  }
+
+  if (HLC_AVL_LINKS(node2)[+1] != NULL) {
+    HLC_AVL_LINKS(HLC_AVL_LINKS(node2)[+1])[0] = node2;
+  }
+
+  if (HLC_AVL_LINKS(node2)[0] != NULL) {
+    assert(node2->direction == -1 || node2->direction == +1);
+    HLC_AVL_LINKS(HLC_AVL_LINKS(node2)[0])[node2->direction] = node2;
   }
 }
 

@@ -95,6 +95,11 @@ hlc_AVL* hlc_avl_insert(hlc_AVL* node, signed char direction, double value);
 hlc_AVL* hlc_avl_remove(hlc_AVL* node);
 
 /// @memberof hlc_AVL
+/// @brief Swaps two nodes.
+/// @pre node1 != NULL && node2 != NULL
+void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2);
+
+/// @memberof hlc_AVL
 /// @brief Produces an implementation-defined Graphviz representation of this subtree.
 void hlc_avl_dot(const hlc_AVL* node, FILE* stream);
 
