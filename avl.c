@@ -306,10 +306,14 @@ static hlc_AVL* hlc_avl_update_after_insertion(hlc_AVL* node) {
 }
 
 
-static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node) {
+static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* root) {
   assert(node != NULL);
+  assert(root != NULL);
+
+  bool root_found = false;
 
   while (true) {
+    root_found |= node == root;
     node = hlc_avl_rebalance(node);
 
     if (node->balance != 0) {
@@ -324,7 +328,7 @@ static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node) {
     }
   }
 
-  return node;
+  return root_found ? node : root;
 }
 
 
@@ -356,44 +360,52 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
   assert(node != NULL);
 
   if (HLC_AVL_LINKS(node)[-1] == NULL) {
-    hlc_AVL* node_right = HLC_AVL_LINKS(node)[+1];
+    // N
+    //  \   =>  a
+    //   a
+
+    hlc_AVL* a = HLC_AVL_LINKS(node)[+1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
     free(node);
 
-    if (node_right != NULL) {
-      HLC_AVL_LINKS(node_right)[0] = node_parent;
-      node_right->direction = node_direction;
+    if (a != NULL) {
+      HLC_AVL_LINKS(a)[0] = node_parent;
+      a->direction = node_direction;
     }
 
     if (node_parent != NULL) {
       assert(node_direction == -1 || node_direction == +1);
-      HLC_AVL_LINKS(node_parent)[node_direction] = node_right;
+      HLC_AVL_LINKS(node_parent)[node_direction] = a;
       node_parent->balance -= node_direction;
-      return hlc_avl_update_after_removal(node_parent);
+      return hlc_avl_update_after_removal(node_parent, node_parent);
     } else {
-      assert(node_right == NULL || (node_right->balance >= -1 && node_right->balance <= +1));
-      return node_right;
+      assert(a == NULL || (a->balance >= -1 && a->balance <= +1));
+      return a;
     }
   } else if (HLC_AVL_LINKS(node)[+1] == NULL) {
-    hlc_AVL* node_left = HLC_AVL_LINKS(node)[-1];
+    //   N
+    //  /   =>  a
+    // a
+
+    hlc_AVL* a = HLC_AVL_LINKS(node)[-1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
     free(node);
 
-    if (node_left != NULL) {
-      HLC_AVL_LINKS(node_left)[0] = node_parent;
-      node_left->direction = node_direction;
+    if (a != NULL) {
+      HLC_AVL_LINKS(a)[0] = node_parent;
+      a->direction = node_direction;
     }
 
     if (node_parent != NULL) {
       assert(node_direction == -1 || node_direction == +1);
-      HLC_AVL_LINKS(node_parent)[node_direction] = node_left;
+      HLC_AVL_LINKS(node_parent)[node_direction] = a;
       node_parent->balance -= node_direction;
-      return hlc_avl_update_after_removal(node_parent);
+      return hlc_avl_update_after_removal(node_parent, node_parent);
     } else {
-      assert(node_left == NULL || (node_left->balance >= -1 && node_left->balance <= +1));
-      return node_left;
+      assert(a == NULL || (a->balance >= -1 && a->balance <= +1));
+      return a;
     }
   } else if (HLC_AVL_LINKS(HLC_AVL_LINKS(node)[+1])[-1] == NULL) {
     //   N
@@ -417,6 +429,8 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     // X1_b - N_b = b_h - a_h - (X0_h - a_h)
     // X1_b - N_b = b_h - a_h - X0_h + a_h
     // X1_b - N_b = b_h - X0_h
+    // X1_b - N_b = b_h - (b_h + 1)
+    // X1_b - N_b = b_h - b_h - 1
     // X1_b - N_b = -1
 
     HLC_AVL_LINKS(x)[-1] = a;
@@ -429,7 +443,7 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
       HLC_AVL_LINKS(node_parent)[node_direction] = x;
     }
 
-    return hlc_avl_update_after_removal(x);
+    return hlc_avl_update_after_removal(x, x);
   } else {
     //   N            X
     //  / \          / \           X
@@ -441,12 +455,22 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     //  \            \           b   c
     //   b            b
 
-    hlc_avl_swap(node, hlc_avl_xmost(HLC_AVL_LINKS(node)[+1], -1));
-    node = hlc_avl_remove(node);
+    hlc_AVL* x = hlc_avl_xmost(HLC_AVL_LINKS(node)[+1], -1);
+    hlc_AVL* b = HLC_AVL_LINKS(x)[+1];
+    hlc_AVL* y = HLC_AVL_LINKS(x)[0];
 
-    // TODO: this is inefficient and doesn't technically abide by hlc_avl_remove's interface! Find a way to return the
-    // root of the modified subtree.
-    return hlc_avl_xmost(node, 0);
+    hlc_avl_swap(node, x);
+    free(node);
+
+    if (b != NULL) {
+      HLC_AVL_LINKS(b)[0] = y;
+      b->direction = -1;
+    }
+
+    HLC_AVL_LINKS(y)[-1] = b;
+    y->balance += 1;
+
+    return hlc_avl_update_after_removal(y, x);
   }
 }
 
