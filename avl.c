@@ -441,15 +441,12 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     //  \            \           b   c
     //   b            b
 
-    hlc_AVL* parent = HLC_AVL_LINKS(node)[0];
-    hlc_AVL* x = hlc_avl_swap(node, hlc_avl_xmost(HLC_AVL_LINKS(node)[+1], -1));
-    hlc_avl_remove(node);
+    hlc_avl_swap(node, hlc_avl_xmost(HLC_AVL_LINKS(node)[+1], -1));
+    node = hlc_avl_remove(node);
 
-    while (HLC_AVL_LINKS(x)[0] != parent) {
-      x = HLC_AVL_LINKS(x)[0];
-    }
-
-    return x;
+    // TODO: this is inefficient and doesn't technically abide by hlc_avl_remove's interface! Find a way to return the
+    // root of the modified subtree.
+    return hlc_avl_xmost(node, 0);
   }
 }
 

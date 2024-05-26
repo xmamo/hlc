@@ -80,7 +80,7 @@ bool hlc_set_remove(hlc_Set* set, double value) {
       node = hlc_avl_remove(node);
 
       if (node == NULL || hlc_avl_link(node, 0) == NULL) {
-        set->root = NULL;
+        set->root = node;
       }
 
       return true;

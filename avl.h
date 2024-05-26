@@ -89,10 +89,9 @@ hlc_AVL* hlc_avl_xcessor(const hlc_AVL* node, signed char direction);
 hlc_AVL* hlc_avl_insert(hlc_AVL* node, signed char direction, double value);
 
 /// @memberof hlc_AVL
-/// @brief Inserts a new node to the left/right of this node.
-/// @param direction -1 to insert to the left, +1 to insert to the right.
-/// @return The new root of the subtree where the node was inserted, after rebalancing.
-/// @pre node != NULL && hlc_avl_link(node, direction) == NULL
+/// @brief Removes this node from its tree.
+/// @return The new root of the subtree where the node was removed, after rebalancing.
+/// @pre node != NULL
 hlc_AVL* hlc_avl_remove(hlc_AVL* node);
 
 /// @memberof hlc_AVL
