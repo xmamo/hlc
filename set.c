@@ -4,6 +4,7 @@
 #include <stdalign.h>
 #include <stdio.h>
 
+#include "avl.h"
 #include "math.h"
 
 

@@ -9,6 +9,8 @@ add_executable(hlc main.c avl.c set.c)
 target_compile_features(hlc PRIVATE c_std_17)
 target_compile_options(hlc PRIVATE -Wall -Wextra)
 
+target_compile_definitions(hlc PRIVATE HLC_EXPORTS)
+
 if(HLC_HAVE_ALLOCA)
   target_compile_definitions(hlc PRIVATE HLC_HAVE_ALLOCA)
 endif()
