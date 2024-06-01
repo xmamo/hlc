@@ -6,12 +6,18 @@
 #include <stdio.h>
 
 #include "api.h"
+#include "layout.h"
+#include "traits/assign.h"
 
 typedef struct hlc_AVL hlc_AVL;
 
 /// @memberof hlc_AVL
 /// @brief Creates a new AVL node.
-HLC_API hlc_AVL* hlc_avl_new(double value);
+HLC_API hlc_AVL* hlc_avl_new(
+  const void* t_value,
+  hlc_Layout value_layout,
+  const hlc_Assign_trait* value_assign_instance
+);
 
 /// @memberof hlc_AVL
 /// @brief Computes the number of nodes of this subtree.
@@ -40,15 +46,15 @@ HLC_API hlc_AVL* hlc_avl_link(const hlc_AVL* node, signed char direction);
 /// @memberof hlc_AVL
 /// @brief Returns a reference to the value stored by this node.
 /// @pre node != NULL
-HLC_API double* hlc_avl_value_ref(const hlc_AVL* node);
+HLC_API void* hlc_avl_value_ref(const hlc_AVL* node, hlc_Layout value_layout);
 
 /// @memberof hlc_AVL
 /// @brief Returns a reference to the value stored by this node.
 /// @pre node != NULL
-#define hlc_avl_value_ref(node) _Generic(               \
-  true ? (node) : (void*)(node),                        \
-  void*: hlc_avl_value_ref((node)),                     \
-  const void*: (const double*)hlc_avl_value_ref((node)) \
+#define hlc_avl_value_ref(node, value_layout) _Generic(               \
+  true ? (node) : (void*)(node),                                      \
+  void*: hlc_avl_value_ref((node), (value_layout)),                   \
+  const void*: (const void*)hlc_avl_value_ref((node), (value_layout)) \
 )
 
 /// @memberof hlc_AVL
@@ -88,7 +94,13 @@ HLC_API hlc_AVL* hlc_avl_xcessor(const hlc_AVL* node, signed char direction);
 /// @param direction -1 to insert to the left, +1 to insert to the right.
 /// @return The new root of the subtree where the node was inserted, after rebalancing.
 /// @pre node != NULL && hlc_avl_link(node, direction) == NULL
-HLC_API hlc_AVL* hlc_avl_insert(hlc_AVL* node, signed char direction, double value);
+HLC_API hlc_AVL* hlc_avl_insert(
+  hlc_AVL* node,
+  signed char direction,
+  void* value,
+  hlc_Layout value_layout,
+  const hlc_Assign_trait* value_assign_instance
+);
 
 /// @memberof hlc_AVL
 /// @brief Removes this node from its tree.

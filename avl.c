@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -14,15 +15,26 @@ struct hlc_AVL {
   hlc_AVL* _links[3];
   signed char direction;
   signed char balance;
-  double value;
 };
 
+
+#define HLC_AVL_LAYOUT ((hlc_Layout){                       \
+  .size = offsetof(hlc_AVL, balance) + sizeof(signed char), \
+  .alignment = alignof(hlc_AVL),                            \
+})
 
 #define HLC_AVL_LINKS(node) ((hlc_AVL**)((char*)(node) + (offsetof(hlc_AVL, _links) + sizeof(hlc_AVL*))))
 
 
-hlc_AVL* hlc_avl_new(double value) {
-  hlc_AVL* node = malloc(sizeof(hlc_AVL));
+hlc_AVL* hlc_avl_new(
+  const void* value,
+  hlc_Layout value_layout,
+  const hlc_Assign_trait* value_assign_instance
+) {
+  hlc_Layout node_layout = HLC_AVL_LAYOUT;
+  size_t node_value_offset = hlc_layout_add(&node_layout, value_layout);
+
+  hlc_AVL* node = malloc(node_layout.size);
 
   if (node != NULL) {
     HLC_AVL_LINKS(node)[-1] = NULL;
@@ -30,7 +42,12 @@ hlc_AVL* hlc_avl_new(double value) {
     HLC_AVL_LINKS(node)[0] = NULL;
     node->direction = -1;
     node->balance = 0;
-    node->value = value;
+
+    if (hlc_assign((char*)node + node_value_offset, value, value_assign_instance)) {
+      return node;
+    } else {
+      free(node);
+    }
   }
 
   return node;
@@ -54,9 +71,12 @@ hlc_AVL* (hlc_avl_link)(const hlc_AVL* node, signed char direction) {
 }
 
 
-double* (hlc_avl_value_ref)(const hlc_AVL* node) {
+void* (hlc_avl_value_ref)(const hlc_AVL* node, hlc_Layout value_layout) {
   assert(node != NULL);
-  return (double*)&node->value;
+
+  hlc_Layout node_layout = HLC_AVL_LAYOUT;
+  size_t node_value_offset = hlc_layout_add(&node_layout, value_layout);
+  return (char*)node + node_value_offset;
 }
 
 
@@ -280,22 +300,23 @@ static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* root) {
 }
 
 
-hlc_AVL* hlc_avl_insert(hlc_AVL* node, signed char direction, double value) {
+hlc_AVL* hlc_avl_insert(
+  hlc_AVL* node,
+  signed char direction,
+  void* value,
+  hlc_Layout value_layout,
+  const hlc_Assign_trait* value_assign_instance
+) {
   assert(node != NULL);
   assert(direction == -1 || direction == +1);
   assert(hlc_avl_link(node, direction) == NULL);
 
-  hlc_AVL* new = malloc(sizeof(hlc_AVL));
+  hlc_AVL* new = hlc_avl_new(value, value_layout, value_assign_instance);
 
   if (new != NULL) {
-    HLC_AVL_LINKS(new)[-1] = NULL;
-    HLC_AVL_LINKS(new)[0] = node;
-    HLC_AVL_LINKS(new)[+1] = NULL;
-    new->direction = direction;
-    new->balance = 0;
-    new->value = value;
-
     HLC_AVL_LINKS(node)[direction] = new;
+    HLC_AVL_LINKS(new)[0] = node;
+    new->direction = direction;
     return hlc_avl_update_after_insertion(new);
   } else {
     return NULL;
@@ -478,10 +499,9 @@ static void hlc_avl_dot_do(const hlc_AVL* node, bool root, FILE* stream) {
 
   fprintf(
     stream,
-    "\tN%0*" PRIXPTR " [label=\"%g [%c, %hhd]\"];\n",
+    "\tN%0*" PRIXPTR " [label=\"? [%c, %hhd]\"];\n",
     (int)((CHAR_BIT * sizeof(uintptr_t) + 3) / 4),
     (uintptr_t)node,
-    node->value,
     node->direction < 0 ? 'L' : 'R',
     node->balance
   );

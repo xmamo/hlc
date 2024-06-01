@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "avl.h"
+#include "layout.h"
 #include "math.h"
 
 
@@ -38,7 +39,7 @@ bool hlc_set_insert(hlc_Set* set, double value) {
     hlc_AVL* node = set->root;
 
     while (true) {
-      double* node_value_ref = hlc_avl_value_ref(node);
+      double* node_value_ref = hlc_avl_value_ref(node, HLC_LAYOUT_OF(double));
       int ordering = HLC_COMPARE(value, *node_value_ref);
 
       if (ordering == 0) {
@@ -49,7 +50,7 @@ bool hlc_set_insert(hlc_Set* set, double value) {
       hlc_AVL* node_child = hlc_avl_link(node, ordering);
 
       if (node_child == NULL) {
-        node = hlc_avl_insert(node, ordering, value);
+        node = hlc_avl_insert(node, ordering, &value, HLC_LAYOUT_OF(double), &hlc_double_assign_instance);
         bool success = node != NULL;
 
         if (success && hlc_avl_link(node, 0) == NULL) {
@@ -62,7 +63,7 @@ bool hlc_set_insert(hlc_Set* set, double value) {
       node = node_child;
     }
   } else {
-    set->root = hlc_avl_new(value);
+    set->root = hlc_avl_new(&value, HLC_LAYOUT_OF(double), &hlc_double_assign_instance);
     return set->root != NULL;
   }
 }
@@ -74,7 +75,7 @@ bool hlc_set_remove(hlc_Set* set, double value) {
   hlc_AVL* node = set->root;
 
   while (node != NULL) {
-    double node_value = *hlc_avl_value_ref(node);
+    double node_value = *(double*)hlc_avl_value_ref(node, HLC_LAYOUT_OF(double));
     int ordering = HLC_COMPARE(value, node_value);
 
     if (ordering == 0) {
@@ -99,10 +100,10 @@ void hlc_set_print(const hlc_Set* set) {
 
   if (node != NULL) {
     node = hlc_avl_xmost(node, -1);
-    printf("%g", *hlc_avl_value_ref(node));
+    printf("%g", *(const double*)hlc_avl_value_ref(node, HLC_LAYOUT_OF(double)));
 
     while ((node = hlc_avl_xcessor(node, +1)) != NULL) {
-      printf(", %g", *hlc_avl_value_ref(node));
+      printf(", %g", *(const double*)hlc_avl_value_ref(node, HLC_LAYOUT_OF(double)));
     }
   }
 
