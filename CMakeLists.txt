@@ -5,7 +5,7 @@ project(hlc LANGUAGES C)
 include(CheckSymbolExists)
 check_symbol_exists(alloca stdlib.h HLC_HAVE_ALLOCA)
 
-add_executable(hlc assign_trait.c compare_trait.c avl.c set.c main.c)
+add_executable(hlc traits/assign.c traits/compare.c avl.c set.c main.c)
 target_compile_features(hlc PRIVATE c_std_17)
 target_compile_options(hlc PRIVATE -Wall -Wextra)
 

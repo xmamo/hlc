@@ -1,4 +1,4 @@
-#include "compare_trait.h"
+#include "compare.h"
 
 HLC_DEFINE_PRIMITIVE_COMPARE_INSTANCE(signed char, schar);
 HLC_DEFINE_PRIMITIVE_COMPARE_INSTANCE(short, short);

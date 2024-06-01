@@ -1,9 +1,8 @@
-#ifndef HLC_COMPARE_TRAIT_H
-#define HLC_COMPARE_TRAIT_H
+#ifndef HLC_TRAITS_COMPARE_H
+#define HLC_TRAITS_COMPARE_H
 
-#include "api.h"
+#include "../api.h"
 
-#include <stdbool.h>
 #include <stddef.h>
 
 /// @brief Trait for types which can compared.

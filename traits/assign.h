@@ -1,7 +1,7 @@
-#ifndef HLC_ASSIGN_TRAIT_H
-#define HLC_ASSIGN_TRAIT_H
+#ifndef HLC_TRAITS_ASSIGN_H
+#define HLC_TRAITS_ASSIGN_H
 
-#include "api.h"
+#include "../api.h"
 
 #include <stdbool.h>
 #include <stddef.h>

@@ -1,4 +1,4 @@
-#include "assign_trait.h"
+#include "assign.h"
 
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(signed char, schar);
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(short, short);
