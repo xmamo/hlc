@@ -23,7 +23,7 @@ static inline signed char hlc_compare(const hlc_Compare_trait* instance, const v
     const t* y = t_name##_y;                                                                                                     \
     (void)instance;                                                                                                              \
                                                                                                                                  \
-    return x < y ? -1 : x > y ? +1 : 0;                                                                                          \
+    return *x < *y ? -1 : *x > *y ? +1 : 0;                                                                                      \
   }                                                                                                                              \
                                                                                                                                  \
   const hlc_Compare_trait hlc_##t_name##_compare_instance = {                                                                    \
