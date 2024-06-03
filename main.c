@@ -10,44 +10,48 @@ static int random_in(int min, int max) {
 }
 
 
-static void shuffle(double* xs, size_t count) {
+static void shuffle(int* xs, size_t count) {
   for (size_t i = 0; i + 1 < count; ++i) {
     size_t j = random_in(i, count - 1);
-    double t = xs[i];
+    int t = xs[i];
     xs[i] = xs[j];
     xs[j] = t;
   }
 }
 
 
-int main(void) {
-  for (unsigned i = 0; i < 100; ++i) {
-    double xs[10000];
-    double ys[10000];
+#define N (100)
+#define M (10000)
 
-    for (size_t j = 0; j < 10000; ++j) {
-      xs[j] = j;
-      ys[j] = j;
+
+int main(void) {
+  for (size_t i = 0; i < N; ++i) {
+    printf("i = %zu\n", i);
+
+    int xs[M];
+    int ys[M];
+
+    for (size_t j = 0; j < M; ++j) {
+      xs[j] = j + 1;
+      ys[j] = j + 1;
     }
 
     srand(i);
-    shuffle(xs, 10000);
-    shuffle(ys, 10000);
+    shuffle(xs, M);
+    shuffle(ys, M);
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
     hlc_set_make(set);
 
-    for (size_t j = 0; j < 10000; ++j) {
+    for (size_t j = 0; j < M; ++j) {
       hlc_set_insert(set, xs[j]);
+      assert(hlc_set_count(set) == j + 1);
     }
 
-    assert(hlc_set_count(set) == 10000);
-
-    for (size_t j = 0; j < 10000; ++j) {
+    for (size_t j = 0; j < M; ++j) {
       hlc_set_remove(set, ys[j]);
+      assert(hlc_set_count(set) == M - (j + 1));
     }
-
-    assert(hlc_set_count(set) == 0);
 
     HLC_STACK_FREE(set);
   }
