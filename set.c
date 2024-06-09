@@ -13,6 +13,7 @@
 
 struct hlc_Set {
   hlc_AVL* root;
+  size_t count;
   hlc_Layout value_layout;
   hlc_Compare_trait value_compare_instance;
 };
@@ -25,6 +26,7 @@ void hlc_set_make(hlc_Set* set, hlc_Layout value_layout, hlc_Compare_trait value
   assert(set != NULL);
 
   set->root = NULL;
+  set->count = 0;
   set->value_layout = value_layout;
   set->value_compare_instance = value_compare_instance;
 }
@@ -33,7 +35,7 @@ void hlc_set_make(hlc_Set* set, hlc_Layout value_layout, hlc_Compare_trait value
 size_t hlc_set_count(const hlc_Set* set) {
   assert(set != NULL);
 
-  return hlc_avl_count(set->root);
+  return set->count;
 }
 
 
@@ -54,20 +56,32 @@ bool hlc_set_insert(hlc_Set* set, const void* value, const hlc_Assign_trait* val
 
       if (node_child == NULL) {
         node = hlc_avl_insert(node, ordering, value, set->value_layout, value_assign_instance);
-        bool success = node != NULL;
 
-        if (success && hlc_avl_link(node, 0) == NULL) {
-          set->root = node;
+        if (node != NULL){
+          if (hlc_avl_link(node, 0) == NULL) {
+            set->root = node;
+          }
+
+          set->count += 1;
+          assert(set->count == hlc_avl_count(set->root));
+          return true;
+        } else {
+          return false;
         }
-
-        return success;
       }
 
       node = node_child;
     }
   } else {
-    set->root = hlc_avl_new(value, set->value_layout, &hlc_int_assign_instance);
-    return set->root != NULL;
+    hlc_AVL* node = hlc_avl_new(value, set->value_layout, &hlc_int_assign_instance);
+
+    if (node != NULL) {
+      set->root = node;
+      set->count += 1;
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -88,6 +102,8 @@ bool hlc_set_remove(hlc_Set* set, const void* value, const hlc_Delete_trait* val
         set->root = node;
       }
 
+      set->count -= 1;
+      assert(set->count == hlc_avl_count(set->root));
       return true;
     }
 
