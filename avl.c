@@ -143,68 +143,117 @@ static size_t hlc_avl_check(const hlc_AVL* node) {
 }
 
 
-static hlc_AVL* hlc_avl_rotate(hlc_AVL* xy, signed char direction) {
-  assert(xy != NULL);
-  assert(direction == -1 || direction == +1);
-  assert(HLC_AVL_LINKS(xy)[-direction] != NULL);
+static hlc_AVL* hlc_avl_rotate_left(hlc_AVL* x) {
+  assert(x != NULL && HLC_AVL_LINKS(x)[+1] != NULL);
 
-  //          -1          |          +1
-  // ---------------------|---------------------
-  //   X              Y   |     Y          X
-  //  / \            / \  |    / \        / \
-  // a   Y    =>    X   c |   X   c  =>  a   Y
-  //    / \        / \    |  / \            / \
-  //   b   c      a   b   | a   b          b   c
+  //   X              Y
+  //  / \            / \
+  // a   Y    =>    X   c
+  //    / \        / \
+  //   b   c      a   b
 
-  hlc_AVL* yx = HLC_AVL_LINKS(xy)[-direction];
-  hlc_AVL* xy_parent = HLC_AVL_LINKS(xy)[0];
-  signed char xy_direction = xy->direction;
-  signed char xy_balance = xy->balance;
+  hlc_AVL* y = HLC_AVL_LINKS(x)[+1];
+  hlc_AVL* x_parent = HLC_AVL_LINKS(x)[0];
+  signed char x_direction = x->direction;
+  signed char x_balance = x->balance;
 
-  hlc_AVL* b = HLC_AVL_LINKS(yx)[direction];
-  signed char yx_direction = yx->direction;
-  signed char yx_balance = yx->balance;
+  hlc_AVL* b = HLC_AVL_LINKS(y)[-1];
+  signed char y_direction = y->direction;
+  signed char y_balance = y->balance;
 
   if (b != NULL) {
-    HLC_AVL_LINKS(b)[0] = xy;
-    b->direction *= -1;
+    HLC_AVL_LINKS(b)[0] = x;
+    b->direction = +1;
   }
 
-  //                       -1                       |                     +1
-  // -----------------------------------------------|--------------------------------------------
-  // X0_b = Y0_h - a_h                              | Y0_b = c_h - X0_h
-  // X1_b = b_h - a_h                               | Y1_b = c_h - b_h
-  //                                                |
-  // X1_b - X0_b = b_h - a_h - (Y0_h - a_h)         | Y1_b - Y0_b = c_h - b_h - (c_h - X0_h)
-  // X1_b - X0_b = b_h - a_h - Y0_h + a_h           | Y1_b - Y0_b = c_h - b_h - c_h + X0_h
-  // X1_b - X0_b = b_h - Y0_h                       | Y1_b - Y0_b = -b_h + X0_h
-  // X1_b - X0_b = b_h - (max(b_h, c_h) + 1)        | Y1_b - Y0_b = -b_h + max(a_h, b_h) + 1
-  // X1_b - X0_b = -(max(b_h - b_h, c_h - b_h) + 1) | Y1_b - Y0_b = max(a_h - b_h, b_h - b_h) + 1
-  // X1_b - X0_b = -(max(0, Y0_b) + 1)              | Y1_b - Y0_b = max(-X0_b, 0) + 1
+  // X0_b = Y0_h - a_h
+  // X1_b = b_h - a_h
+  //
+  // X1_b - X0_b = b_h - a_h - (Y0_h - a_h)
+  // X1_b - X0_b = b_h - a_h - Y0_h + a_h
+  // X1_b - X0_b = b_h - Y0_h
+  // X1_b - X0_b = b_h - (max(b_h, c_h) + 1)
+  // X1_b - X0_b = -(max(b_h - b_h, c_h - b_h) + 1)
+  // X1_b - X0_b = -(max(0, Y0_b) + 1)
 
-  HLC_AVL_LINKS(xy)[0] = yx;
-  HLC_AVL_LINKS(xy)[-direction] = b;
-  xy->direction = -yx_direction;
-  xy->balance = xy_balance + direction * (HLC_MAX(0, -direction * yx_balance) + 1);
+  HLC_AVL_LINKS(x)[+1] = b;
+  HLC_AVL_LINKS(x)[0] = y;
+  x->direction = -1;
+  x->balance = x_balance - HLC_MAX(1, 1 + y_balance);
 
-  //                       -1                       |                     +1
-  // -----------------------------------------------|--------------------------------------------
-  // Y0_b = c_h - b_h                               | X0_b = b_h - a_h
-  // Y1_b = c_h - X1_h                              | X1_b = Y1_h - a_h
-  //                                                |
-  // Y1_b - Y0_b = c_h - X1_h - (c_h - b_h)         | X1_b - X0_b = Y1_h - a_h - (b_h - a_h)
-  // Y1_b - Y0_b = c_h - X1_h - c_h + b_h           | X1_b - X0_b = Y1_h - a_h - b_h + a_h
-  // Y1_b - Y0_b = -X1_h + b_h                      | X1_b - X0_b = Y1_h - b_h
-  // Y1_b - Y0_b = -(max(a_h, b_h) + 1) + b_h       | X1_b - X0_b = max(b_h, c_h) + 1 - b_h
-  // Y1_b - Y0_b = -(max(a_h - b_h, b_h - b_h) + 1) | X1_b - X0_b = max(b_h - b_h, c_h - b_h) + 1
-  // Y1_b - Y0_b = -(max(-X1_b, 0) + 1)             | X1_b - X0_b = max(0, Y1_b) + 1
+  // Y0_b = c_h - b_h
+  // Y1_b = c_h - X1_h
+  //
+  // Y1_b - Y0_b = c_h - X1_h - (c_h - b_h)
+  // Y1_b - Y0_b = c_h - X1_h - c_h + b_h
+  // Y1_b - Y0_b = -X1_h + b_h
+  // Y1_b - Y0_b = -(max(a_h, b_h) + 1) + b_h
+  // Y1_b - Y0_b = -(max(a_h - b_h, b_h - b_h) + 1)
+  // Y1_b - Y0_b = -(max(-X1_b, 0) + 1)
 
-  HLC_AVL_LINKS(yx)[0] = xy_parent;
-  HLC_AVL_LINKS(yx)[direction] = xy;
-  yx->direction = xy_direction;
-  yx->balance = yx_balance + direction * (HLC_MAX(direction * xy->balance, 0) + 1);
+  HLC_AVL_LINKS(y)[-1] = x;
+  HLC_AVL_LINKS(y)[0] = x_parent;
+  y->direction = x_direction;
+  y->balance = y_balance - HLC_MAX(1 - x->balance, 1);
 
-  return yx;
+  return y;
+}
+
+
+static hlc_AVL* hlc_avl_rotate_right(hlc_AVL* y) {
+  assert(y != NULL && HLC_AVL_LINKS(y)[-1] != NULL);
+
+  //     Y          X
+  //    / \        / \
+  //   X   c  =>  a   Y
+  //  / \            / \
+  // a   b          b   c
+
+  hlc_AVL* x = HLC_AVL_LINKS(y)[-1];
+  hlc_AVL* y_parent = HLC_AVL_LINKS(y)[0];
+  signed char y_direction = y->direction;
+  signed char y_balance = y->balance;
+
+  hlc_AVL* b = HLC_AVL_LINKS(x)[+1];
+  signed char x_direction = x->direction;
+  signed char x_balance = x->balance;
+
+  if (b != NULL) {
+    HLC_AVL_LINKS(b)[0] = y;
+    b->direction = -1;
+  }
+
+  // Y0_b = c_h - X0_h
+  // Y1_b = c_h - b_h
+  //
+  // Y1_b - Y0_b = c_h - b_h - (c_h - X0_h)
+  // Y1_b - Y0_b = c_h - b_h - c_h + X0_h
+  // Y1_b - Y0_b = -b_h + X0_h
+  // Y1_b - Y0_b = -b_h + max(a_h, b_h) + 1
+  // Y1_b - Y0_b = max(a_h - b_h, b_h - b_h) + 1
+  // Y1_b - Y0_b = max(-X0_b, 0) + 1
+
+  HLC_AVL_LINKS(y)[-1] = b;
+  HLC_AVL_LINKS(y)[0] = x;
+  y->direction = +1;
+  y->balance = y_balance + HLC_MAX(1 - x_balance, 1);
+
+  // X0_b = b_h - a_h
+  // X1_b = Y1_h - a_h
+  // 
+  // X1_b - X0_b = Y1_h - a_h - (b_h - a_h)
+  // X1_b - X0_b = Y1_h - a_h - b_h + a_h
+  // X1_b - X0_b = Y1_h - b_h
+  // X1_b - X0_b = max(b_h, c_h) + 1 - b_h
+  // X1_b - X0_b = max(b_h - b_h, c_h - b_h) + 1
+  // X1_b - X0_b = max(0, Y1_b) + 1
+
+  HLC_AVL_LINKS(x)[+1] = y;
+  HLC_AVL_LINKS(x)[0] = y_parent;
+  x->direction = y_direction;
+  x->balance = x_balance + HLC_MAX(1, 1 + y->balance);
+
+  return x;
 }
 
 
@@ -221,7 +270,7 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
       //  \        /
       //   Y      X
 
-      HLC_AVL_LINKS(node)[-1] = hlc_avl_rotate(HLC_AVL_LINKS(node)[-1], -1);
+      HLC_AVL_LINKS(node)[-1] = hlc_avl_rotate_left(HLC_AVL_LINKS(node)[-1]);
     }
 
     //     N
@@ -230,7 +279,7 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
     //  /         X   N
     // X
 
-    node = hlc_avl_rotate(node, +1);
+    node = hlc_avl_rotate_right(node);
 
     if (HLC_AVL_LINKS(node)[0] != NULL) {
       assert(node->direction == -1 || node->direction == +1);
@@ -246,7 +295,7 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
       //  /          \
       // X            Y
 
-      HLC_AVL_LINKS(node)[+1] = hlc_avl_rotate(HLC_AVL_LINKS(node)[+1], +1);
+      HLC_AVL_LINKS(node)[+1] = hlc_avl_rotate_right(HLC_AVL_LINKS(node)[+1]);
     }
 
     // N
@@ -255,7 +304,7 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
     //    \       N   Y
     //     Y
 
-    node = hlc_avl_rotate(node, -1);
+    node = hlc_avl_rotate_left(node);
 
     if (HLC_AVL_LINKS(node)[0] != NULL) {
       assert(node->direction == -1 || node->direction == +1);
