@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdbool.h>
 
 #include "set.h"
 #include "stack.h"
@@ -41,16 +42,16 @@ int main(void) {
     shuffle(ys, M);
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
-    hlc_set_make(set);
+    hlc_set_make(set, HLC_LAYOUT_OF(int), hlc_int_compare_instance);
 
     for (size_t j = 0; j < M; ++j) {
-      hlc_set_insert(set, xs[j]);
-      assert(hlc_set_count(set) == j + 1);
+      bool ok = hlc_set_insert(set, &xs[j], &hlc_int_assign_instance);
+      assert(ok && hlc_set_count(set) == j + 1);
     }
 
     for (size_t j = 0; j < M; ++j) {
-      hlc_set_remove(set, ys[j]);
-      assert(hlc_set_count(set) == M - (j + 1));
+      bool ok = hlc_set_remove(set, &ys[j], &hlc_int_delete_instance);
+      assert(ok && hlc_set_count(set) == M - (j + 1));
     }
 
     HLC_STACK_FREE(set);

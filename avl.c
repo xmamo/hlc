@@ -71,7 +71,7 @@ hlc_AVL* (hlc_avl_link)(const hlc_AVL* node, signed char direction) {
 }
 
 
-void* (hlc_avl_value_ref)(const hlc_AVL* node, hlc_Layout value_layout) {
+void* (hlc_avl_value)(const hlc_AVL* node, hlc_Layout value_layout) {
   assert(node != NULL);
 
   hlc_Layout node_layout = HLC_AVL_LAYOUT;
@@ -303,7 +303,7 @@ static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* root) {
 hlc_AVL* hlc_avl_insert(
   hlc_AVL* node,
   signed char direction,
-  void* value,
+  const void* value,
   hlc_Layout value_layout,
   const hlc_Assign_trait* value_assign_instance
 ) {
@@ -324,7 +324,11 @@ hlc_AVL* hlc_avl_insert(
 }
 
 
-hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
+hlc_AVL* hlc_avl_remove(
+  hlc_AVL* node,
+  hlc_Layout value_layout,
+  const hlc_Delete_trait* value_delete_instance
+) {
   assert(node != NULL);
 
   if (HLC_AVL_LINKS(node)[-1] == NULL) {
@@ -335,6 +339,7 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     hlc_AVL* a = HLC_AVL_LINKS(node)[+1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
+    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
     free(node);
 
     if (a != NULL) {
@@ -359,6 +364,7 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     hlc_AVL* a = HLC_AVL_LINKS(node)[-1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
+    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
     free(node);
 
     if (a != NULL) {
@@ -387,6 +393,7 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
     signed char node_balance = node->balance;
+    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
     free(node);
 
     HLC_AVL_LINKS(a)[0] = x;
@@ -428,6 +435,7 @@ hlc_AVL* hlc_avl_remove(hlc_AVL* node) {
     hlc_AVL* y = HLC_AVL_LINKS(x)[0];
 
     hlc_avl_swap(node, x);
+    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
     free(node);
 
     if (b != NULL) {
