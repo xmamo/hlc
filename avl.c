@@ -6,9 +6,14 @@
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
+#include "layout.h"
 #include "math.h"
+#include "traits/assign.h"
+#include "traits/delete.h"
 
 
 struct hlc_AVL {
@@ -47,6 +52,7 @@ hlc_AVL* hlc_avl_new(
       return node;
     } else {
       free(node);
+      return NULL;
     }
   }
 
@@ -203,7 +209,11 @@ static hlc_AVL* hlc_avl_rotate(hlc_AVL* xy, signed char direction) {
 
 
 static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
+  assert(node != NULL);
+
   if (node->balance < -1) {
+    assert(HLC_AVL_LINKS(node)[-1] != NULL);
+
     if (HLC_AVL_LINKS(node)[-1]->balance > 0) {
       //   N          N
       //  /          /
@@ -227,6 +237,8 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
       HLC_AVL_LINKS(HLC_AVL_LINKS(node)[0])[node->direction] = node;
     }
   } else if (node->balance > +1) {
+    assert(HLC_AVL_LINKS(node)[+1] != NULL);
+
     if (HLC_AVL_LINKS(node)[+1]->balance < 0) {
       // N        N
       //  \        \

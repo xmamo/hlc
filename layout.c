@@ -1,6 +1,7 @@
 #include "layout.h"
 
 #include <assert.h>
+#include <stddef.h>
 
 
 void hlc_layout_make(hlc_Layout* layout) {

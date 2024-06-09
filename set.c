@@ -1,12 +1,14 @@
 #include "set.h"
 
 #include <assert.h>
-#include <stdalign.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 #include "avl.h"
 #include "layout.h"
-#include "math.h"
+#include "traits/assign.h"
+#include "traits/compare.h"
+#include "traits/delete.h"
 
 
 struct hlc_Set {
@@ -43,7 +45,7 @@ bool hlc_set_insert(hlc_Set* set, const void* value, const hlc_Assign_trait* val
 
     while (true) {
       void* node_value = hlc_avl_value(node, set->value_layout);
-      int ordering = hlc_compare(value, node_value, &set->value_compare_instance);
+      signed char ordering = hlc_compare(value, node_value, &set->value_compare_instance);
 
       if (ordering == 0)
         return hlc_assign(node_value, value, value_assign_instance);
@@ -77,7 +79,7 @@ bool hlc_set_remove(hlc_Set* set, const void* value, const hlc_Delete_trait* val
 
   while (node != NULL) {
     void* node_value = hlc_avl_value(node, set->value_layout);
-    int ordering = hlc_compare(value, node_value, &set->value_compare_instance);
+    signed char ordering = hlc_compare(value, node_value, &set->value_compare_instance);
 
     if (ordering == 0) {
       node = hlc_avl_remove(node, set->value_layout, value_delete_instance);

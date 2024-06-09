@@ -3,7 +3,6 @@
 
 #include "../api.h"
 
-#include <stdbool.h>
 #include <stddef.h>
 
 /// @brief Trait for object deletion.

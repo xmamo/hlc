@@ -1,5 +1,7 @@
 #include "delete.h"
 
+#include <stddef.h>
+
 HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(signed char, schar);
 HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(short, short);
 HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(int, int);

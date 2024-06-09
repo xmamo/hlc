@@ -1,5 +1,7 @@
 #include "compare.h"
 
+#include <stddef.h>
+
 HLC_DEFINE_PRIMITIVE_COMPARE_INSTANCE(signed char, schar);
 HLC_DEFINE_PRIMITIVE_COMPARE_INSTANCE(short, short);
 HLC_DEFINE_PRIMITIVE_COMPARE_INSTANCE(int, int);

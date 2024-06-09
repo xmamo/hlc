@@ -1,5 +1,7 @@
 #include "assign.h"
 
+#include <stddef.h>
+
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(signed char, schar);
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(short, short);
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(int, int);
