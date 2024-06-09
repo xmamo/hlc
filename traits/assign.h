@@ -3,6 +3,7 @@
 
 #include "../api.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -12,7 +13,9 @@ typedef struct hlc_Assign_trait {
   void* context;
 } hlc_Assign_trait;
 
+/// @pre instance != NULL
 static inline bool hlc_assign(void* target, const void* source, const hlc_Assign_trait* instance) {
+  assert(instance != NULL);
   return instance->assign(target, source, instance);
 }
 

@@ -3,6 +3,7 @@
 
 #include "../api.h"
 
+#include <assert.h>
 #include <stddef.h>
 
 /// @brief Trait for types which can compared.
@@ -11,7 +12,9 @@ typedef struct hlc_Compare_trait {
   void* context;
 } hlc_Compare_trait;
 
+/// @pre instance != NULL
 static inline signed char hlc_compare(const void* x, const void* y, const hlc_Compare_trait* instance) {
+  assert(instance != NULL);
   return instance->compare(x, y, instance);
 }
 

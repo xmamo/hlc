@@ -3,6 +3,7 @@
 
 #include "../api.h"
 
+#include <assert.h>
 #include <stddef.h>
 
 /// @brief Trait for object deletion.
@@ -11,7 +12,9 @@ typedef struct hlc_Delete_trait {
   void* context;
 } hlc_Delete_trait;
 
+/// @pre instance != NULL
 static inline void hlc_delete(void* target, const hlc_Delete_trait* instance) {
+  assert(instance != NULL);
   instance->delete(target, instance);
 }
 
