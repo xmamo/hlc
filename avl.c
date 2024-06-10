@@ -28,7 +28,12 @@ struct hlc_AVL {
   .alignment = alignof(hlc_AVL),                            \
 })
 
-#define HLC_AVL_LINKS(node) ((hlc_AVL**)((char*)(node) + (offsetof(hlc_AVL, _links) + sizeof(hlc_AVL*))))
+
+#define HLC_AVL_LINKS(node) _Generic(                                                                  \
+  true ? (node) : (void*)(node),                                                                       \
+  void*: (hlc_AVL**)((char*)(node) + (offsetof(hlc_AVL, _links) + sizeof(hlc_AVL*))),                  \
+  const void*: (hlc_AVL* const*)((const char*)(node) + (offsetof(hlc_AVL, _links) + sizeof(hlc_AVL*))) \
+)
 
 
 hlc_AVL* hlc_avl_new(
