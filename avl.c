@@ -51,11 +51,10 @@ hlc_AVL* hlc_avl_new(
       return node;
     } else {
       free(node);
-      return NULL;
     }
   }
 
-  return node;
+  return NULL;
 }
 
 
@@ -72,6 +71,7 @@ size_t hlc_avl_height(const hlc_AVL* root) {
 hlc_AVL* (hlc_avl_link)(const hlc_AVL* node, signed char direction) {
   assert(node != NULL);
   assert(direction >= -1 && direction <= +1);
+
   return HLC_AVL_LINKS(node)[direction];
 }
 
@@ -237,7 +237,7 @@ static hlc_AVL* hlc_avl_rotate_right(hlc_AVL* y) {
 
   // X0_b = b_h - a_h
   // X1_b = Y1_h - a_h
-  // 
+  //
   // X1_b - X0_b = Y1_h - a_h - (b_h - a_h)
   // X1_b - X0_b = Y1_h - a_h - b_h + a_h
   // X1_b - X0_b = Y1_h - b_h
@@ -314,6 +314,8 @@ static hlc_AVL* hlc_avl_rebalance(hlc_AVL* node) {
 }
 
 
+/// @param node The node which was inserted.
+/// @return The new root of the subtree where the node was inserted, after rebalancing.
 static hlc_AVL* hlc_avl_update_after_insertion(hlc_AVL* node) {
   assert(node != NULL);
 
@@ -328,33 +330,35 @@ static hlc_AVL* hlc_avl_update_after_insertion(hlc_AVL* node) {
       break;
   }
 
+  assert(node->balance >= -1 && node->balance <= +1);
   return node;
 }
 
 
-static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* root) {
+/// @param node The parent of the node which was deleted. The balance of said parent must already have been updated.
+/// @param root The ancestor to be returned if this function returns early.
+/// @return The new root of the subtree where the node was removed, after rebalancing.
+static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* ancestor) {
   assert(node != NULL);
-  assert(root != NULL);
+  assert(ancestor != NULL);
 
   bool root_found = false;
 
   while (true) {
-    root_found |= node == root;
+    root_found |= node == ancestor;
     node = hlc_avl_rebalance(node);
 
-    if (node->balance != 0) {
-      assert(node->balance == -1 || node->balance == +1);
+    if (node->balance != 0 || HLC_AVL_LINKS(node)[0] == NULL)
       break;
-    } else if (HLC_AVL_LINKS(node)[0] != NULL) {
-      assert(node->direction == -1 || node->direction == +1);
-      HLC_AVL_LINKS(node)[0]->balance -= node->direction;
-      node = HLC_AVL_LINKS(node)[0];
-    } else {
-      break;
-    }
+
+    assert(node->direction == -1 || node->direction == +1);
+    HLC_AVL_LINKS(node)[0]->balance -= node->direction;
+    node = HLC_AVL_LINKS(node)[0];
   }
 
-  return root_found ? node : root;
+  node = root_found ? node : ancestor;
+  assert(node->balance >= -1 && node->balance <= +1);
+  return node;
 }
 
 
