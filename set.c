@@ -73,7 +73,7 @@ bool hlc_set_insert(hlc_Set* set, const void* value, const hlc_Assign_trait* val
       node = node_child;
     }
   } else {
-    hlc_AVL* node = hlc_avl_new(value, set->value_layout, &hlc_int_assign_instance);
+    hlc_AVL* node = hlc_avl_new(value, set->value_layout, value_assign_instance);
 
     if (node != NULL) {
       set->root = node;

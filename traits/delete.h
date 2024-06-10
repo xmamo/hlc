@@ -8,7 +8,7 @@
 
 /// @brief Trait for object deletion.
 typedef struct hlc_Delete_trait {
-  void (*delete)(void* object, const struct hlc_Delete_trait* instance);
+  void (*delete)(void* target, const struct hlc_Delete_trait* instance);
   void* context;
 } hlc_Delete_trait;
 
@@ -21,8 +21,8 @@ static inline void hlc_delete(void* target, const hlc_Delete_trait* instance) {
 #define HLC_DECLARE_PRIMITIVE_DELETE_INSTANCE(t, t_name) const hlc_Delete_trait hlc_##t_name##_delete_instance
 
 #define HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(t, t_name)                               \
-  static void hlc_##t_name##_delete(void* object, const hlc_Delete_trait* instance) { \
-    (void)object;                                                                     \
+  static void hlc_##t_name##_delete(void* target, const hlc_Delete_trait* instance) { \
+    (void)target;                                                                     \
     (void)instance;                                                                   \
   }                                                                                   \
                                                                                       \
