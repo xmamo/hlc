@@ -16,9 +16,9 @@ typedef struct hlc_AVL hlc_AVL;
 /// @brief Creates a new AVL node.
 /// @return The new AVL node, or NULL on insufficient memory.
 HLC_API hlc_AVL* hlc_avl_new(
-  const void* t_value,
-  hlc_Layout value_layout,
-  const hlc_Assign_trait* value_assign_instance
+  const void* element,
+  hlc_Layout element_layout,
+  const hlc_Assign_trait* element_assign_instance
 );
 
 /// @memberof hlc_AVL
@@ -46,17 +46,17 @@ HLC_API hlc_AVL* hlc_avl_link(const hlc_AVL* node, signed char direction);
 )
 
 /// @memberof hlc_AVL
-/// @brief Returns a reference to the value stored by this node.
+/// @brief Returns a reference to the element stored by this node.
 /// @pre node != NULL
-HLC_API void* hlc_avl_value(const hlc_AVL* node, hlc_Layout value_layout);
+HLC_API void* hlc_avl_element(const hlc_AVL* node, hlc_Layout element_layout);
 
 /// @memberof hlc_AVL
-/// @brief Returns a reference to the value stored by this node.
+/// @brief Returns a reference to the element stored by this node.
 /// @pre node != NULL
-#define hlc_avl_value(node, value_layout) _Generic(               \
-  true ? (node) : (void*)(node),                                  \
-  void*: hlc_avl_value((node), (value_layout)),                   \
-  const void*: (const void*)hlc_avl_value((node), (value_layout)) \
+#define hlc_avl_element(node, element_layout) _Generic(               \
+  true ? (node) : (void*)(node),                                      \
+  void*: hlc_avl_element((node), (element_layout)),                   \
+  const void*: (const void*)hlc_avl_element((node), (element_layout)) \
 )
 
 /// @memberof hlc_AVL
@@ -99,9 +99,9 @@ HLC_API hlc_AVL* hlc_avl_xcessor(const hlc_AVL* node, signed char direction);
 HLC_API hlc_AVL* hlc_avl_insert(
   hlc_AVL* node,
   signed char direction,
-  const void* value,
-  hlc_Layout value_layout,
-  const hlc_Assign_trait* value_assign_instance
+  const void* element,
+  hlc_Layout element_layout,
+  const hlc_Assign_trait* element_assign_instance
 );
 
 /// @memberof hlc_AVL
@@ -110,8 +110,8 @@ HLC_API hlc_AVL* hlc_avl_insert(
 /// @pre node != NULL
 HLC_API hlc_AVL* hlc_avl_remove(
   hlc_AVL* node,
-  hlc_Layout value_layout,
-  const hlc_Delete_trait* value_delete_instance
+  hlc_Layout element_layout,
+  const hlc_Delete_trait* element_delete_instance
 );
 
 /// @memberof hlc_AVL

@@ -16,8 +16,8 @@ extern HLC_API const hlc_Layout hlc_map_layout;
 HLC_API void hlc_map_make(
   hlc_Map* map,
   hlc_Layout key_layout,
-  hlc_Compare_trait key_compare_instance,
-  hlc_Layout value_layout
+  hlc_Layout value_layout,
+  hlc_Compare_trait key_compare_instance
 );
 
 HLC_API size_t hlc_map_count(const hlc_Map* map);

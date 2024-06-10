@@ -32,13 +32,12 @@ struct hlc_AVL {
 
 
 hlc_AVL* hlc_avl_new(
-  const void* value,
-  hlc_Layout value_layout,
-  const hlc_Assign_trait* value_assign_instance
+  const void* element,
+  hlc_Layout element_layout,
+  const hlc_Assign_trait* element_assign_instance
 ) {
   hlc_Layout node_layout = HLC_AVL_LAYOUT;
-  size_t node_value_offset = hlc_layout_add(&node_layout, value_layout);
-
+  size_t element_offset = hlc_layout_add(&node_layout, element_layout);
   hlc_AVL* node = malloc(node_layout.size);
 
   if (node != NULL) {
@@ -48,7 +47,7 @@ hlc_AVL* hlc_avl_new(
     node->direction = -1;
     node->balance = 0;
 
-    if (hlc_assign((char*)node + node_value_offset, value, value_assign_instance)) {
+    if (hlc_assign((char*)node + element_offset, element, element_assign_instance)) {
       return node;
     } else {
       free(node);
@@ -77,12 +76,12 @@ hlc_AVL* (hlc_avl_link)(const hlc_AVL* node, signed char direction) {
 }
 
 
-void* (hlc_avl_value)(const hlc_AVL* node, hlc_Layout value_layout) {
+void* (hlc_avl_element)(const hlc_AVL* node, hlc_Layout element_layout) {
   assert(node != NULL);
 
   hlc_Layout node_layout = HLC_AVL_LAYOUT;
-  size_t node_value_offset = hlc_layout_add(&node_layout, value_layout);
-  return (char*)node + node_value_offset;
+  size_t element_offset = hlc_layout_add(&node_layout, element_layout);
+  return (char*)node + element_offset;
 }
 
 
@@ -158,7 +157,6 @@ static hlc_AVL* hlc_avl_rotate_left(hlc_AVL* x) {
   signed char x_balance = x->balance;
 
   hlc_AVL* b = HLC_AVL_LINKS(y)[-1];
-  signed char y_direction = y->direction;
   signed char y_balance = y->balance;
 
   if (b != NULL) {
@@ -215,7 +213,6 @@ static hlc_AVL* hlc_avl_rotate_right(hlc_AVL* y) {
   signed char y_balance = y->balance;
 
   hlc_AVL* b = HLC_AVL_LINKS(x)[+1];
-  signed char x_direction = x->direction;
   signed char x_balance = x->balance;
 
   if (b != NULL) {
@@ -364,15 +361,15 @@ static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* root) {
 hlc_AVL* hlc_avl_insert(
   hlc_AVL* node,
   signed char direction,
-  const void* value,
-  hlc_Layout value_layout,
-  const hlc_Assign_trait* value_assign_instance
+  const void* element,
+  hlc_Layout element_layout,
+  const hlc_Assign_trait* element_assign_instance
 ) {
   assert(node != NULL);
   assert(direction == -1 || direction == +1);
   assert(hlc_avl_link(node, direction) == NULL);
 
-  hlc_AVL* new = hlc_avl_new(value, value_layout, value_assign_instance);
+  hlc_AVL* new = hlc_avl_new(element, element_layout, element_assign_instance);
 
   if (new != NULL) {
     HLC_AVL_LINKS(node)[direction] = new;
@@ -387,8 +384,8 @@ hlc_AVL* hlc_avl_insert(
 
 hlc_AVL* hlc_avl_remove(
   hlc_AVL* node,
-  hlc_Layout value_layout,
-  const hlc_Delete_trait* value_delete_instance
+  hlc_Layout element_layout,
+  const hlc_Delete_trait* element_delete_instance
 ) {
   assert(node != NULL);
 
@@ -400,7 +397,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* a = HLC_AVL_LINKS(node)[+1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
-    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
+    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
     free(node);
 
     if (a != NULL) {
@@ -425,7 +422,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* a = HLC_AVL_LINKS(node)[-1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
-    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
+    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
     free(node);
 
     if (a != NULL) {
@@ -454,7 +451,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
     signed char node_balance = node->balance;
-    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
+    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
     free(node);
 
     HLC_AVL_LINKS(a)[0] = x;
@@ -496,7 +493,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* y = HLC_AVL_LINKS(x)[0];
 
     hlc_avl_swap(node, x);
-    hlc_delete(hlc_avl_value(node, value_layout), value_delete_instance);
+    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
     free(node);
 
     if (b != NULL) {
@@ -542,8 +539,8 @@ void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2) {
   }
 
   HLC_AVL_LINKS(node2)[-1] = node1_left;
-  HLC_AVL_LINKS(node2)[0] = node1_parent;
   HLC_AVL_LINKS(node2)[+1] = node1_right;
+  HLC_AVL_LINKS(node2)[0] = node1_parent;
   node2->balance = node1_balance;
   node2->direction = node1_direction;
 

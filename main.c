@@ -89,7 +89,7 @@ int main(void) {
     hlc_Map* map = HLC_STACK_ALLOCATE(hlc_map_layout.size);
     assert(map != NULL);
 
-    hlc_map_make(map, HLC_LAYOUT_OF(int), hlc_int_compare_instance, HLC_LAYOUT_OF(double));
+    hlc_map_make(map, HLC_LAYOUT_OF(int), HLC_LAYOUT_OF(double), hlc_int_compare_instance);
 
     for (size_t j = 0; j < M; ++j) {
       double value = -xs[j];
