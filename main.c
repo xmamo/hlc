@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __has_include
+  #if __has_include(<crtdbg.h>)
+    #include <crtdbg.h>
+  #endif
+#endif
+
 #include "layout.h"
 #include "map.h"
 #include "set.h"
@@ -39,6 +45,14 @@ static void shuffle(int* xs, size_t count) {
 
 
 int main(void) {
+  #ifdef __has_include
+    #if __has_include(<crtdbg.h>)
+      _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+      _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+      _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+    #endif
+  #endif
+
   puts("Testing hlc_Set:");
 
   for (size_t i = 1; i <= ITERATIONS; ++i) {
@@ -82,7 +96,7 @@ int main(void) {
     free(elements);
   }
 
-  puts("\nTesting hlc_Map:");
+  puts("Testing hlc_Map:");
 
   for (size_t i = 1; i <= ITERATIONS; ++i) {
     printf("\tIteration %zu\n", i);

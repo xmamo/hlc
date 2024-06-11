@@ -18,4 +18,4 @@ add_executable(
 
 target_compile_features(hlc PRIVATE c_std_17)
 target_compile_options(hlc PRIVATE -Wall -Wextra -pedantic-errors)
-target_compile_definitions(hlc PRIVATE HLC_EXPORTS)
+target_compile_definitions(hlc PRIVATE HLC_EXPORTS _CRTDBG_MAP_ALLOC)
