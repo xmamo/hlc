@@ -19,9 +19,11 @@ static int random_in(int min, int max) {
 }
 
 
-static void shuffle(int* xs, int count) {
-  for (int i = 0; i + 1 < count; ++i) {
-    int j = random_in(i, count - 1);
+static void shuffle(int* xs, size_t count) {
+  assert(xs != NULL);
+
+  for (size_t i = 0; i + 1 < count; ++i) {
+    int j = random_in((int)i, (int)(count - 1));
     int t = xs[i];
     xs[i] = xs[j];
     xs[j] = t;
@@ -32,27 +34,22 @@ static void shuffle(int* xs, int count) {
 #undef NDEBUG
 #include <assert.h>
 
-#define N (10)
-#define M (10000)
+#define ITERATIONS (10)
+#define COUNT (10000)
 
 
 int main(void) {
-  puts("Testing hlc_Set...");
+  puts("Testing hlc_Set:");
 
-  for (size_t i = 0; i < N; ++i) {
-    printf("i = %zu\n", i);
+  for (size_t i = 1; i <= ITERATIONS; ++i) {
+    printf("\tIteration %zu\n", i);
 
-    int xs[M];
-    int ys[M];
+    int* elements = malloc(sizeof(int) * COUNT);
+    assert(elements != NULL);
 
-    for (int j = 0; j < M; ++j) {
-      xs[j] = j + 1;
-      ys[j] = j + 1;
+    for (size_t j = 0; j < COUNT; ++j) {
+      elements[j] = (int)(j + 1);
     }
-
-    srand(i);
-    shuffle(xs, M);
-    shuffle(ys, M);
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
     assert(set != NULL);
@@ -65,37 +62,37 @@ int main(void) {
       hlc_no_delete_instance
     );
 
-    for (size_t j = 0; j < M; ++j) {
-      bool ok = hlc_set_insert(set, &xs[j]);
-      bool contains = hlc_set_contains(set, &xs[j]);
+    shuffle(elements, COUNT);
+
+    for (size_t j = 0; j < COUNT; ++j) {
+      bool ok = hlc_set_insert(set, &elements[j]);
+      bool contains = hlc_set_contains(set, &elements[j]);
       assert(ok && contains);
     }
 
-    for (size_t j = 0; j < M; ++j) {
-      bool ok = hlc_set_remove(set, &ys[j]);
-      bool contains = hlc_set_contains(set, &ys[j]);
+    shuffle(elements, COUNT);
+
+    for (size_t j = 0; j < COUNT; ++j) {
+      bool ok = hlc_set_remove(set, &elements[j]);
+      bool contains = hlc_set_contains(set, &elements[j]);
       assert(ok && !contains);
     }
 
     HLC_STACK_FREE(set);
+    free(elements);
   }
 
-  puts("\nTesting hlc_Map...");
+  puts("\nTesting hlc_Map:");
 
-  for (size_t i = 0; i < N; ++i) {
-    printf("i = %zu\n", i);
+  for (size_t i = 1; i <= ITERATIONS; ++i) {
+    printf("\tIteration %zu\n", i);
 
-    int xs[M];
-    int ys[M];
+    int* keys = malloc(sizeof(int) * COUNT);
+    assert(keys != NULL);
 
-    for (int j = 0; j < M; ++j) {
-      xs[j] = j + 1;
-      ys[j] = j + 1;
+    for (size_t j = 0; j < COUNT; ++j) {
+      keys[j] = (int)(j + 1);
     }
-
-    srand(i);
-    shuffle(xs, M);
-    shuffle(ys, M);
 
     hlc_Map* map = HLC_STACK_ALLOCATE(hlc_map_layout.size);
     assert(map != NULL);
@@ -111,20 +108,27 @@ int main(void) {
       hlc_no_delete_instance
     );
 
-    for (size_t j = 0; j < M; ++j) {
-      double value = -xs[j];
-      bool ok = hlc_map_insert(map, &xs[j], &value);
-      const double* lookup = hlc_map_lookup(map, &xs[j]);
-      assert(ok && lookup != NULL && *lookup == value);
+    shuffle(keys, COUNT);
+
+    for (size_t j = 0; j < COUNT; ++j) {
+      double value = -keys[j];
+      bool ok = hlc_map_insert(map, &keys[j], &value);
+      bool contains = hlc_map_contains(map, &keys[j]);
+      const double* lookup = hlc_map_lookup(map, &keys[j]);
+      assert(ok && contains && lookup != NULL && *lookup == value);
     }
 
-    for (size_t j = 0; j < M; ++j) {
-      bool ok = hlc_map_remove(map, &ys[j]);
-      const double* lookup = hlc_map_lookup(map, &ys[j]);
-      assert(ok && lookup == NULL);
+    shuffle(keys, COUNT);
+
+    for (size_t j = 0; j < COUNT; ++j) {
+      bool ok = hlc_map_remove(map, &keys[j]);
+      bool contains = hlc_map_contains(map, &keys[j]);
+      const double* lookup = hlc_map_lookup(map, &keys[j]);
+      assert(ok && !contains && lookup == NULL);
     }
 
     HLC_STACK_FREE(map);
+    free(keys);
   }
 
   return EXIT_SUCCESS;
