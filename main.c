@@ -58,12 +58,14 @@ int main(void) {
 
     for (size_t j = 0; j < M; ++j) {
       bool ok = hlc_set_insert(set, &xs[j], &hlc_int_assign_instance);
-      assert(ok);
+      bool contains = hlc_set_contains(set, &xs[j]);
+      assert(ok && contains);
     }
 
     for (size_t j = 0; j < M; ++j) {
       bool ok = hlc_set_remove(set, &ys[j], &hlc_int_delete_instance);
-      assert(ok);
+      bool contains = hlc_set_contains(set, &ys[j]);
+      assert(ok && !contains);
     }
 
     HLC_STACK_FREE(set);

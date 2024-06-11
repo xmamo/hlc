@@ -121,6 +121,26 @@ bool hlc_set_remove(hlc_Set* set, const void* element, const hlc_Delete_trait* e
 }
 
 
+bool hlc_set_contains(const hlc_Set* set, const void* key) {
+  assert(set != NULL);
+
+  hlc_AVL* node = set->root;
+
+  while (node != NULL) {
+    void* node_element = hlc_avl_element(node, set->element_layout);
+    signed char ordering = hlc_compare(key, node_element, &set->element_compare_instance);
+
+    if (ordering == 0) {
+      return true;
+    } else {
+      node = hlc_avl_link(node, ordering);
+    }
+  }
+
+  return false;
+}
+
+
 void hlc_set_dot(const hlc_Set* set, FILE* stream) {
   hlc_avl_dot(set->root, stream);
 }

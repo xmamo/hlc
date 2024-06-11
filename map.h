@@ -67,4 +67,9 @@ HLC_API void* hlc_map_lookup(const hlc_Map* map, const void* key);
   const void*: (const void*)hlc_map_lookup((map), (key)) \
 )
 
+/// @memberof hlc_Map
+/// @brief Checks if this map contains the given key.
+/// @pre set != NULL
+HLC_API bool hlc_map_contains(const hlc_Map* map, const void* key);
+
 #endif

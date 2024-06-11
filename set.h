@@ -39,6 +39,11 @@ HLC_API bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_
 HLC_API bool hlc_set_remove(hlc_Set* set, const void* element, const hlc_Delete_trait* element_delete_instance);
 
 /// @memberof hlc_Set
+/// @brief Checks if this set contains the given key.
+/// @pre set != NULL
+HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
+
+/// @memberof hlc_Set
 /// @brief Produces an implementation-defined Graphviz representation of this set.
 /// @pre stream != NULL
 HLC_API void hlc_set_dot(const hlc_Set* set, FILE* stream);

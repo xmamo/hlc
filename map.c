@@ -255,3 +255,8 @@ void* (hlc_map_lookup)(const hlc_Map* map, const void* key) {
 
   return NULL;
 }
+
+
+bool hlc_map_contains(const hlc_Map* map, const void* key) {
+  return hlc_map_lookup(map, key) != NULL;
+}
