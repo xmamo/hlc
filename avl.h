@@ -18,7 +18,7 @@ typedef struct hlc_AVL hlc_AVL;
 HLC_API hlc_AVL* hlc_avl_new(
   const void* element,
   hlc_Layout element_layout,
-  const hlc_Assign_trait* element_assign_instance
+  hlc_Assign_instance element_assign_instance
 );
 
 /// @memberof hlc_AVL
@@ -101,7 +101,7 @@ HLC_API hlc_AVL* hlc_avl_insert(
   signed char direction,
   const void* element,
   hlc_Layout element_layout,
-  const hlc_Assign_trait* element_assign_instance
+  hlc_Assign_instance element_assign_instance
 );
 
 /// @memberof hlc_AVL
@@ -111,7 +111,7 @@ HLC_API hlc_AVL* hlc_avl_insert(
 HLC_API hlc_AVL* hlc_avl_remove(
   hlc_AVL* node,
   hlc_Layout element_layout,
-  const hlc_Delete_trait* element_delete_instance
+  hlc_Delete_instance element_delete_instance
 );
 
 /// @memberof hlc_AVL

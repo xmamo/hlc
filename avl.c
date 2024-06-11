@@ -39,7 +39,7 @@ struct hlc_AVL {
 hlc_AVL* hlc_avl_new(
   const void* element,
   hlc_Layout element_layout,
-  const hlc_Assign_trait* element_assign_instance
+  hlc_Assign_instance element_assign_instance
 ) {
   hlc_Layout node_layout = HLC_AVL_LAYOUT;
   size_t element_offset = hlc_layout_add(&node_layout, element_layout);
@@ -372,7 +372,7 @@ hlc_AVL* hlc_avl_insert(
   signed char direction,
   const void* element,
   hlc_Layout element_layout,
-  const hlc_Assign_trait* element_assign_instance
+  hlc_Assign_instance element_assign_instance
 ) {
   assert(node != NULL);
   assert(direction == -1 || direction == +1);
@@ -394,7 +394,7 @@ hlc_AVL* hlc_avl_insert(
 hlc_AVL* hlc_avl_remove(
   hlc_AVL* node,
   hlc_Layout element_layout,
-  const hlc_Delete_trait* element_delete_instance
+  hlc_Delete_instance element_delete_instance
 ) {
   assert(node != NULL);
 

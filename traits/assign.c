@@ -1,6 +1,25 @@
 #include "assign.h"
 
+#include <stdbool.h>
 #include <stddef.h>
+#include <wchar.h>
+
+static bool hlc_no_assign(void* target, const void* source, const struct hlc_Assign_trait* trait, void* context) {
+  (void)target;
+  (void)source;
+  (void)trait;
+  (void)context;
+  return true;
+}
+
+static const hlc_Assign_trait hlc_no_assign_trait = {
+  .assign = hlc_no_assign,
+};
+
+const hlc_Assign_instance hlc_no_assign_instance = {
+  .trait = &hlc_no_assign_trait,
+  .context = NULL,
+};
 
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(signed char, schar);
 HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(short, short);

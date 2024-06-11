@@ -19,7 +19,13 @@ extern HLC_API const hlc_Layout hlc_set_layout;
 /// @memberof hlc_Set
 /// @brief Makes an empty set.
 /// @pre set != NULL
-HLC_API void hlc_set_make(hlc_Set* set, hlc_Layout element_layout, hlc_Compare_trait element_compare_instance);
+HLC_API void hlc_set_make(
+  hlc_Set* set,
+  hlc_Layout element_layout,
+  hlc_Compare_instance element_compare_instance,
+  hlc_Assign_instance element_assign_instance,
+  hlc_Delete_instance element_delete_instance
+);
 
 /// @memberof hlc_Set
 /// @brief Returns the number of elements in this set.
@@ -29,14 +35,26 @@ HLC_API size_t hlc_set_count(const hlc_Set* set);
 /// @memberof hlc_Set
 /// @brief Inserts an element into this set.
 /// @return true on success, false on insufficient memory.
-/// @pre set != NULL && element_assign_instance != NULL
-HLC_API bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_trait* element_assign_instance);
+/// @pre set != NULL
+HLC_API bool hlc_set_insert(hlc_Set* set, const void* element);
+
+/// @memberof hlc_Set
+/// @brief Inserts an element into this set.
+/// @return true on success, false on insufficient memory.
+/// @pre set != NULL
+HLC_API bool hlc_set_insert_with(hlc_Set* set, const void* element, hlc_Assign_instance element_assign_instance);
 
 /// @memberof hlc_Set
 /// @brief Removes an element from this set.
 /// @return true on success, false if the element was not an element of this set.
-/// @pre set != NULL && element_delete_instance != NULL
-HLC_API bool hlc_set_remove(hlc_Set* set, const void* element, const hlc_Delete_trait* element_delete_instance);
+/// @pre set != NULL
+HLC_API bool hlc_set_remove(hlc_Set* set, const void* element);
+
+/// @memberof hlc_Set
+/// @brief Removes an element from this set.
+/// @return true on success, false if the element was not an element of this set.
+/// @pre set != NULL
+HLC_API bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Delete_instance element_delete_instance);
 
 /// @memberof hlc_Set
 /// @brief Checks if this set contains the given key.

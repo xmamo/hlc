@@ -1,40 +1,56 @@
 #ifndef HLC_TRAITS_ASSIGN_H
 #define HLC_TRAITS_ASSIGN_H
 
-#include "../api.h"
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <wchar.h>
 
-/// @brief Trait for types which can be copied or moved.
+#include "../api.h"
+
 typedef struct hlc_Assign_trait {
-  bool (*assign)(void* target, const void* source, const struct hlc_Assign_trait* instance);
-  void* context;
+  bool (*assign)(void* target, const void* source, const struct hlc_Assign_trait* trait, void* context);
 } hlc_Assign_trait;
 
-/// @pre instance != NULL
-static inline bool hlc_assign(void* target, const void* source, const hlc_Assign_trait* instance) {
-  assert(instance != NULL);
-  return instance->assign(target, source, instance);
+typedef struct hlc_Assign_instance {
+  const hlc_Assign_trait* trait;
+  void* context;
+} hlc_Assign_instance;
+
+static inline bool hlc_assign(void* target, const void* source, hlc_Assign_instance instance) {
+  return instance.trait->assign(target, source, instance.trait, instance.context);
 }
 
-#define HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(t, t_name) const hlc_Assign_trait hlc_##t_name##_assign_instance
+#define HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(t, t_name) const hlc_Assign_instance hlc_##t_name##_assign_instance
 
-#define HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(t, t_name)                                                     \
-  static bool hlc_##t_name##_assign(void* _target, const void* _source, const hlc_Assign_trait* instance) { \
-    t* target = _target;                                                                                    \
-    const t* source = _source;                                                                              \
-    (void)instance;                                                                                         \
-                                                                                                            \
-    *target = *source;                                                                                      \
-    return true;                                                                                            \
-  }                                                                                                         \
-                                                                                                            \
-  const hlc_Assign_trait hlc_##t_name##_assign_instance = {                                                 \
-    .assign = hlc_##t_name##_assign,                                                                        \
-    .context = NULL,                                                                                        \
+#define HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(t, t_name)         \
+  static bool hlc_##t_name##_assign(                            \
+    void* _target,                                              \
+    const void* _source,                                        \
+    const hlc_Assign_trait* instance,                           \
+    void* context                                               \
+  ) {                                                           \
+    t* target = _target;                                        \
+    const t* source = _source;                                  \
+    (void)instance;                                             \
+    (void)context;                                              \
+                                                                \
+    assert(target != NULL);                                     \
+    assert(source != NULL);                                     \
+    *target = *source;                                          \
+    return true;                                                \
+  }                                                             \
+                                                                \
+  static const hlc_Assign_trait hlc_##t_name##_assign_trait = { \
+    .assign = hlc_##t_name##_assign,                            \
+  };                                                            \
+                                                                \
+  const hlc_Assign_instance hlc_##t_name##_assign_instance = {  \
+    .trait = &hlc_##t_name##_assign_trait,                      \
+    .context = NULL,                                            \
   }
+
+extern HLC_API const hlc_Assign_instance hlc_no_assign_instance;
 
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(signed char, schar);
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(short, short);

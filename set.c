@@ -17,43 +17,57 @@ struct hlc_Set {
   hlc_AVL* root;
   size_t count;
   hlc_Layout element_layout;
-  hlc_Compare_trait element_compare_instance;
+  hlc_Compare_instance element_compare_instance;
+  hlc_Assign_instance element_assign_instance;
+  hlc_Delete_instance element_delete_instance;
 };
 
 
 const hlc_Layout hlc_set_layout = {
-  .size = offsetof(hlc_Set, element_compare_instance),
+  .size = offsetof(hlc_Set, element_delete_instance) + sizeof(hlc_Delete_instance),
   .alignment = alignof(hlc_Set),
 };
 
 
-void hlc_set_make(hlc_Set* set, hlc_Layout element_layout, hlc_Compare_trait element_compare_instance) {
+void hlc_set_make(
+  hlc_Set* set,
+  hlc_Layout element_layout,
+  hlc_Compare_instance element_compare_instance,
+  hlc_Assign_instance element_assign_instance,
+  hlc_Delete_instance element_delete_instance
+) {
   assert(set != NULL);
 
   set->root = NULL;
   set->count = 0;
   set->element_layout = element_layout;
   set->element_compare_instance = element_compare_instance;
+  set->element_assign_instance = element_assign_instance;
+  set->element_delete_instance = element_delete_instance;
 }
 
 
 size_t hlc_set_count(const hlc_Set* set) {
   assert(set != NULL);
-
   return set->count;
 }
 
 
-bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_trait* element_assign_instance) {
+bool hlc_set_insert(hlc_Set* set, const void* element) {
   assert(set != NULL);
-  assert(element_assign_instance != NULL);
+  return hlc_set_insert_with(set, element, set->element_assign_instance);
+}
+
+
+bool hlc_set_insert_with(hlc_Set* set, const void* element, hlc_Assign_instance element_assign_instance) {
+  assert(set != NULL);
 
   if (set->root != NULL) {
     hlc_AVL* node = set->root;
 
     while (true) {
       void* node_element = hlc_avl_element(node, set->element_layout);
-      signed char ordering = hlc_compare(element, node_element, &set->element_compare_instance);
+      signed char ordering = hlc_compare(element, node_element, set->element_compare_instance);
 
       if (ordering == 0)
         return hlc_assign(node_element, element, element_assign_instance);
@@ -92,15 +106,20 @@ bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_trait* e
 }
 
 
-bool hlc_set_remove(hlc_Set* set, const void* element, const hlc_Delete_trait* element_delete_instance) {
+bool hlc_set_remove(hlc_Set* set, const void* element) {
   assert(set != NULL);
-  assert(element_delete_instance != NULL);
+  return hlc_set_remove_with(set, element, set->element_delete_instance);
+}
+
+
+bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Delete_instance element_delete_instance) {
+  assert(set != NULL);
 
   hlc_AVL* node = set->root;
 
   while (node != NULL) {
     void* node_element = hlc_avl_element(node, set->element_layout);
-    signed char ordering = hlc_compare(element, node_element, &set->element_compare_instance);
+    signed char ordering = hlc_compare(element, node_element, set->element_compare_instance);
 
     if (ordering == 0) {
       node = hlc_avl_remove(node, set->element_layout, element_delete_instance);
@@ -128,7 +147,7 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 
   while (node != NULL) {
     void* node_element = hlc_avl_element(node, set->element_layout);
-    signed char ordering = hlc_compare(key, node_element, &set->element_compare_instance);
+    signed char ordering = hlc_compare(key, node_element, set->element_compare_instance);
 
     if (ordering == 0) {
       return true;
@@ -143,6 +162,5 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 
 void hlc_set_dot(const hlc_Set* set, FILE* stream) {
   assert(set != NULL);
-
   hlc_avl_dot(set->root, stream);
 }

@@ -2,24 +2,17 @@
 
 #include <stddef.h>
 
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(signed char, schar);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(short, short);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(int, int);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(long, long);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(long long, llong);
+static void hlc_no_delete(void* target, const struct hlc_Delete_trait* trait, void* context) {
+  (void)target;
+  (void)trait;
+  (void)context;
+}
 
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(unsigned char, uchar);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(unsigned short, ushort);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(unsigned, uint);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(unsigned long, ulong);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(unsigned long long, ullong);
+static const hlc_Delete_trait hlc_no_delete_trait = {
+  .delete = hlc_no_delete,
+};
 
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(float, float);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(double, double);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(long double, ldouble);
-
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(size_t, size);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(ptrdiff_t, ptrdiff);
-
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(char, char);
-HLC_DEFINE_PRIMITIVE_DELETE_INSTANCE(wchar_t, wchar);
+const hlc_Delete_instance hlc_no_delete_instance = {
+  .trait = &hlc_no_delete_trait,
+  .context = NULL,
+};

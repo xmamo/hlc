@@ -23,7 +23,11 @@ HLC_API void hlc_map_make(
   hlc_Map* map,
   hlc_Layout key_layout,
   hlc_Layout value_layout,
-  hlc_Compare_trait key_compare_instance
+  hlc_Compare_instance key_compare_instance,
+  hlc_Assign_instance key_assign_instance,
+  hlc_Delete_instance key_delete_instance,
+  hlc_Assign_instance value_assign_instance,
+  hlc_Delete_instance value_delete_instance
 );
 
 /// @memberof hlc_Map
@@ -34,24 +38,36 @@ HLC_API size_t hlc_map_count(const hlc_Map* map);
 /// @memberof hlc_Map
 /// @brief Inserts a key/value pair into this map.
 /// @return true on success, false on insufficient memory.
-/// @pre map != NULL && element != NULL && key_assign_instance != NULL && value_assign_instance != NULL
-HLC_API bool hlc_map_insert(
+/// @pre map != NULL
+HLC_API bool hlc_map_insert(hlc_Map* map, const void* key, const void* value);
+
+/// @memberof hlc_Map
+/// @brief Inserts a key/value pair into this map.
+/// @return true on success, false on insufficient memory.
+/// @pre map != NULL
+HLC_API bool hlc_map_insert_with(
   hlc_Map* map,
   const void* key,
   const void* value,
-  const hlc_Assign_trait* key_assign_instance,
-  const hlc_Assign_trait* value_assign_instance
+  hlc_Assign_instance key_assign_instance,
+  hlc_Assign_instance value_assign_instance
 );
 
 /// @memberof hlc_Map
 /// @brief Removes a key from this map.
 /// @return true on success, false if the element was not an element of this map.
-/// @pre map != NULL && key_delete_instance != NULL && value_delete_instance != NULL
-HLC_API bool hlc_map_remove(
+/// @pre map != NULL
+HLC_API bool hlc_map_remove(hlc_Map* map, const void* key);
+
+/// @memberof hlc_Map
+/// @brief Removes a key from this map.
+/// @return true on success, false if the element was not an element of this map.
+/// @pre map != NULL
+HLC_API bool hlc_map_remove_with(
   hlc_Map* map,
   const void* key,
-  const hlc_Delete_trait* key_delete_instance,
-  const hlc_Delete_trait* value_delete_instance
+  hlc_Delete_instance key_delete_instance,
+  hlc_Delete_instance value_delete_instance
 );
 
 /// @memberof hlc_Map

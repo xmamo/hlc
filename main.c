@@ -54,16 +54,22 @@ int main(void) {
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
     assert(set != NULL);
 
-    hlc_set_make(set, HLC_LAYOUT_OF(int), hlc_int_compare_instance);
+    hlc_set_make(
+      set,
+      HLC_LAYOUT_OF(int),
+      hlc_int_compare_instance,
+      hlc_int_assign_instance,
+      hlc_no_delete_instance
+    );
 
     for (size_t j = 0; j < M; ++j) {
-      bool ok = hlc_set_insert(set, &xs[j], &hlc_int_assign_instance);
+      bool ok = hlc_set_insert(set, &xs[j]);
       bool contains = hlc_set_contains(set, &xs[j]);
       assert(ok && contains);
     }
 
     for (size_t j = 0; j < M; ++j) {
-      bool ok = hlc_set_remove(set, &ys[j], &hlc_int_delete_instance);
+      bool ok = hlc_set_remove(set, &ys[j]);
       bool contains = hlc_set_contains(set, &ys[j]);
       assert(ok && !contains);
     }
@@ -91,17 +97,26 @@ int main(void) {
     hlc_Map* map = HLC_STACK_ALLOCATE(hlc_map_layout.size);
     assert(map != NULL);
 
-    hlc_map_make(map, HLC_LAYOUT_OF(int), HLC_LAYOUT_OF(double), hlc_int_compare_instance);
+    hlc_map_make(
+      map,
+      HLC_LAYOUT_OF(int),
+      HLC_LAYOUT_OF(double),
+      hlc_int_compare_instance,
+      hlc_int_assign_instance,
+      hlc_no_delete_instance,
+      hlc_double_assign_instance,
+      hlc_no_delete_instance
+    );
 
     for (size_t j = 0; j < M; ++j) {
       double value = -xs[j];
-      bool ok = hlc_map_insert(map, &xs[j], &value, &hlc_int_assign_instance, &hlc_double_assign_instance);
+      bool ok = hlc_map_insert(map, &xs[j], &value);
       const double* lookup = hlc_map_lookup(map, &xs[j]);
       assert(ok && lookup != NULL && *lookup == value);
     }
 
     for (size_t j = 0; j < M; ++j) {
-      bool ok = hlc_map_remove(map, &ys[j], &hlc_int_delete_instance, &hlc_double_delete_instance);
+      bool ok = hlc_map_remove(map, &ys[j]);
       const double* lookup = hlc_map_lookup(map, &ys[j]);
       assert(ok && lookup == NULL);
     }
