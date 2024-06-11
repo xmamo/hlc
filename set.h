@@ -29,13 +29,13 @@ HLC_API size_t hlc_set_count(const hlc_Set* set);
 /// @memberof hlc_Set
 /// @brief Inserts an element into this set.
 /// @return true on success, false on insufficient memory.
-/// @pre set != NULL && element != NULL && element_assign_instance != NULL
+/// @pre set != NULL && element_assign_instance != NULL
 HLC_API bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_trait* element_assign_instance);
 
 /// @memberof hlc_Set
 /// @brief Removes an element from this set.
 /// @return true on success, false if the element was not an element of this set.
-/// @pre set != NULL && element != NULL && element_delete_instance != NULL
+/// @pre set != NULL && element_delete_instance != NULL
 HLC_API bool hlc_set_remove(hlc_Set* set, const void* element, const hlc_Delete_trait* element_delete_instance);
 
 /// @memberof hlc_Set

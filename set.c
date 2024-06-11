@@ -46,6 +46,7 @@ size_t hlc_set_count(const hlc_Set* set) {
 
 bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_trait* element_assign_instance) {
   assert(set != NULL);
+  assert(element_assign_instance != NULL);
 
   if (set->root != NULL) {
     hlc_AVL* node = set->root;
@@ -93,6 +94,7 @@ bool hlc_set_insert(hlc_Set* set, const void* element, const hlc_Assign_trait* e
 
 bool hlc_set_remove(hlc_Set* set, const void* element, const hlc_Delete_trait* element_delete_instance) {
   assert(set != NULL);
+  assert(element_delete_instance != NULL);
 
   hlc_AVL* node = set->root;
 

@@ -52,29 +52,6 @@ size_t hlc_map_count(const hlc_Map* map) {
 }
 
 
-void* (hlc_map_lookup)(const hlc_Map* map, const void* key) {
-  assert(map != NULL);
-
-  hlc_Layout element_layout = {.size = 0, .alignment = 1};
-  size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
-  size_t value_offset = hlc_layout_add(&element_layout, map->value_layout);
-
-  hlc_AVL* node = map->root;
-
-  while (node != NULL) {
-    void* node_element = hlc_avl_element(node, element_layout);
-    signed char ordering = hlc_compare(key, (char*)node_element + key_offset, &map->key_compare_instance);
-
-    if (ordering == 0)
-      return (char*)node_element + value_offset;
-
-    node = hlc_avl_link(node, ordering);
-  }
-
-  return NULL;
-}
-
-
 typedef struct hlc_Map_element_assign_context {
   hlc_Layout element_layout;
   size_t key_offset;
@@ -121,6 +98,8 @@ bool hlc_map_insert(
   const hlc_Assign_trait* value_assign_instance
 ) {
   assert(map != NULL);
+  assert(key_assign_instance != NULL);
+  assert(value_assign_instance != NULL);
 
   const void* kv[] = {key, value};
 
@@ -207,9 +186,11 @@ bool hlc_map_remove(
   hlc_Map* map,
   const void* key,
   const hlc_Delete_trait* key_delete_instance,
-  const hlc_Delete_trait* value_delete_instance1
+  const hlc_Delete_trait* value_delete_instance
 ) {
   assert(map != NULL);
+  assert(key_delete_instance != NULL);
+  assert(value_delete_instance != NULL);
 
   hlc_Layout element_layout = {.size = 0, .alignment = 1};
   size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
@@ -219,7 +200,7 @@ bool hlc_map_remove(
     .key_offset = key_offset,
     .key_delete_instance = key_delete_instance,
     .value_offset = value_offset,
-    .value_delete_instance = value_delete_instance1,
+    .value_delete_instance = value_delete_instance,
   };
 
   hlc_Delete_trait element_delete_instance = {
@@ -249,4 +230,28 @@ bool hlc_map_remove(
   }
 
   return false;
+}
+
+
+void* (hlc_map_lookup)(const hlc_Map* map, const void* key) {
+  assert(map != NULL);
+
+  hlc_Layout element_layout = {.size = 0, .alignment = 1};
+  size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
+  size_t value_offset = hlc_layout_add(&element_layout, map->value_layout);
+
+  hlc_AVL* node = map->root;
+
+  while (node != NULL) {
+    void* node_element = hlc_avl_element(node, element_layout);
+    signed char ordering = hlc_compare(key, (char*)node_element + key_offset, &map->key_compare_instance);
+
+    if (ordering == 0) {
+      return (char*)node_element + value_offset;
+    } else {
+      node = hlc_avl_link(node, ordering);
+    }
+  }
+
+  return NULL;
 }
