@@ -4,6 +4,7 @@
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "avl.h"
@@ -259,4 +260,11 @@ void* (hlc_map_lookup)(const hlc_Map* map, const void* key) {
 
 bool hlc_map_contains(const hlc_Map* map, const void* key) {
   return hlc_map_lookup(map, key) != NULL;
+}
+
+
+void hlc_map_dot(const hlc_Map* map, FILE* stream) {
+  assert(map != NULL);
+
+  hlc_avl_dot(map->root, stream);
 }

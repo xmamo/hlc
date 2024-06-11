@@ -568,7 +568,7 @@ void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2) {
 }
 
 
-static void hlc_avl_dot_do(const hlc_AVL* node, bool root, FILE* stream) {
+static void hlc_avl_dot_do(const hlc_AVL* node, bool is_root, FILE* stream) {
   assert(node != NULL && (node->direction == -1 || node->direction == +1));
   assert(stream != NULL);
 
@@ -639,7 +639,7 @@ static void hlc_avl_dot_do(const hlc_AVL* node, bool root, FILE* stream) {
     );
   }
 
-  if (!root && HLC_AVL_LINKS(node)[0] != NULL) {
+  if (!is_root && HLC_AVL_LINKS(node)[0] != NULL) {
     fprintf(
       stream,
       "\tN%0*" PRIXPTR " -> N%0*" PRIXPTR ";\n",

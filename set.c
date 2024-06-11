@@ -142,5 +142,7 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 
 
 void hlc_set_dot(const hlc_Set* set, FILE* stream) {
+  assert(set != NULL);
+
   hlc_avl_dot(set->root, stream);
 }

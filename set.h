@@ -45,7 +45,7 @@ HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
 
 /// @memberof hlc_Set
 /// @brief Produces an implementation-defined Graphviz representation of this set.
-/// @pre stream != NULL
+/// @pre set != NULL && stream != NULL
 HLC_API void hlc_set_dot(const hlc_Set* set, FILE* stream);
 
 #endif
