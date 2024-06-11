@@ -29,6 +29,9 @@ static void shuffle(int* xs, int count) {
 }
 
 
+#undef NDEBUG
+#include <assert.h>
+
 #define N (10)
 #define M (10000)
 
