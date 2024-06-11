@@ -1,9 +1,6 @@
 #ifndef HLC_TRAITS_DELETE_H
 #define HLC_TRAITS_DELETE_H
 
-#include <assert.h>
-#include <stddef.h>
-
 #include "../api.h"
 
 typedef struct hlc_Delete_trait {

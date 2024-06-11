@@ -3,16 +3,20 @@
 
 #include <stdlib.h>
 
-#ifdef __max
-#define HLC_MAX(x, y) __max((x), (y))
+#if defined(max)
+  #define HLC_MAX(x, y) max((x), (y))
+#elif defined(__max)
+  #define HLC_MAX(x, y) __max((x), (y))
 #else
-#define HLC_MAX(x, y) ((y) > (x) ? (y) : (x))
+  #define HLC_MAX(x, y) ((y) > (x) ? (y) : (x))
 #endif
 
-#ifdef __min
-#define HLC_MIN(x, y) __min((x), (y))
+#if defined(min)
+  #define HLC_MIN(x, y) min((x), (y))
+#elif defined(__min)
+  #define HLC_MIN(x, y) __min((x), (y))
 #else
-#define HLC_MIN(x, y) ((y) < (x) ? (y) : (x))
+  #define HLC_MIN(x, y) ((y) < (x) ? (y) : (x))
 #endif
 
 #define HLC_ABS(x) ((x) >= 0 ? (x) : -(x))

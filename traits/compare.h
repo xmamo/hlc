@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <wchar.h>
 
 #include "../api.h"
 
