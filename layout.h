@@ -17,11 +17,6 @@ typedef struct hlc_Layout {
 })
 
 /// @memberof hlc_Layout
-/// @brief Makes an empty layout.
-/// @pre layout != NULL
-HLC_API void hlc_layout_make(hlc_Layout* layout);
-
-/// @memberof hlc_Layout
 /// @brief Adds a member to this layout.
 /// @return The offset of the member which was added.
 /// @pre layout != NULL
