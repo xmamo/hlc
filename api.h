@@ -1,5 +1,5 @@
-#ifndef HLC_BASE_H
-#define HLC_BASE_H
+#ifndef HLC_API_H
+#define HLC_API_H
 
 #ifdef HLC_EXPORTS
   #if defined(__GNUC__)
