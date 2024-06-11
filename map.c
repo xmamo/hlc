@@ -84,14 +84,32 @@ typedef struct hlc_Map_element_assign_context {
 } hlc_Map_element_assign_context;
 
 
-static bool hlc_map_element_assign(void* target, const void* _source, const struct hlc_Assign_trait* instance) {
-  const void* const* source = _source;
+static bool hlc_map_element_assign(void* target, const void* source, const struct hlc_Assign_trait* instance) {
+  assert(target != NULL);
+  assert(source != NULL);
   assert(instance != NULL);
 
+  const void* const* kv = source;
   const hlc_Map_element_assign_context* context = instance->context;
-  hlc_assign((char*)target + context->key_offset, source[0], context->key_assign_instance);
-  hlc_assign((char*)target + context->value_offset, source[1], context->value_assign_instance);
-  return true;  // TODO
+
+  void* backup = HLC_STACK_ALLOCATE(context->element_layout.size);
+
+  if (backup != NULL) {
+    memcpy(backup, target, context->element_layout.size);
+
+    bool ok1 = hlc_assign((char*)target + context->key_offset, kv[0], context->key_assign_instance);
+    bool ok2 = hlc_assign((char*)target + context->value_offset, kv[1], context->value_assign_instance);
+    bool success = ok1 && ok2;
+
+    if (!success) {
+      memcpy(target, backup, context->element_layout.size);
+    }
+
+    HLC_STACK_FREE(backup);
+    return success;
+  } else {
+    return false;
+  }
 }
 
 
@@ -176,6 +194,7 @@ typedef struct hlc_Map_element_delete_context {
 
 
 static void hlc_map_element_delete(void* target, const struct hlc_Delete_trait* instance) {
+  assert(target != NULL);
   assert(instance != NULL);
 
   const hlc_Map_element_delete_context* context = instance->context;
