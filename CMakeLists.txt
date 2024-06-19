@@ -40,6 +40,7 @@ add_executable(hlc
   avl.c
   layout.c
   map.c
+  random.c
   set.c
   traits/assign.c
   traits/compare.c

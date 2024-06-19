@@ -12,6 +12,7 @@
 
 #include "layout.h"
 #include "map.h"
+#include "random.h"
 #include "set.h"
 #include "stack.h"
 #include "traits/assign.h"
@@ -19,17 +20,11 @@
 #include "traits/delete.h"
 
 
-static int random_in(int min, int max) {
-  assert(max >= min);
-  return min + rand() / (RAND_MAX / (max - min + 1) + 1);
-}
-
-
-static void shuffle(int* xs, size_t count) {
+static void shuffle(hlc_Random* random, int* xs, size_t count) {
   assert(xs != NULL);
 
   for (size_t i = 0; i + 1 < count; ++i) {
-    int j = random_in((int)i, (int)(count - 1));
+    size_t j = hlc_random_size_in(random, i, count - 1);
     int t = xs[i];
     xs[i] = xs[j];
     xs[j] = t;
@@ -53,6 +48,9 @@ int main(void) {
     #endif
   #endif
 
+  hlc_Random* random = HLC_STACK_ALLOCATE(hlc_random_layout.size);
+  hlc_random_make(random);
+
   puts("Testing hlc_Set:");
 
   for (size_t i = 1; i <= ITERATIONS; ++i) {
@@ -66,7 +64,6 @@ int main(void) {
     }
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
-    assert(set != NULL);
 
     hlc_set_make(
       set,
@@ -76,7 +73,7 @@ int main(void) {
       hlc_no_delete_instance
     );
 
-    shuffle(elements, COUNT);
+    shuffle(random, elements, COUNT);
 
     for (size_t j = 0; j < COUNT; ++j) {
       bool ok = hlc_set_insert(set, &elements[j]);
@@ -84,7 +81,7 @@ int main(void) {
       assert(ok && contains);
     }
 
-    shuffle(elements, COUNT);
+    shuffle(random, elements, COUNT);
 
     for (size_t j = 0; j < COUNT; ++j) {
       bool ok = hlc_set_remove(set, &elements[j]);
@@ -109,7 +106,6 @@ int main(void) {
     }
 
     hlc_Map* map = HLC_STACK_ALLOCATE(hlc_map_layout.size);
-    assert(map != NULL);
 
     hlc_map_make(
       map,
@@ -122,7 +118,7 @@ int main(void) {
       hlc_no_delete_instance
     );
 
-    shuffle(keys, COUNT);
+    shuffle(random, keys, COUNT);
 
     for (size_t j = 0; j < COUNT; ++j) {
       double value = -keys[j];
@@ -132,7 +128,7 @@ int main(void) {
       assert(ok && contains && lookup != NULL && *lookup == value);
     }
 
-    shuffle(keys, COUNT);
+    shuffle(random, keys, COUNT);
 
     for (size_t j = 0; j < COUNT; ++j) {
       bool ok = hlc_map_remove(map, &keys[j]);
@@ -144,6 +140,8 @@ int main(void) {
     HLC_STACK_FREE(map);
     free(keys);
   }
+
+  HLC_STACK_FREE(random);
 
   return EXIT_SUCCESS;
 }

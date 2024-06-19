@@ -21,9 +21,9 @@ static inline bool hlc_assign(void* target, const void* source, hlc_Assign_insta
   return instance.trait->assign(target, source, instance.trait, instance.context);
 }
 
-#define HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(t, t_name) const hlc_Assign_instance hlc_##t_name##_assign_instance
+#define HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(t_name, t) const hlc_Assign_instance hlc_##t_name##_assign_instance
 
-#define HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(t, t_name)         \
+#define HLC_DEFINE_PRIMITIVE_ASSIGN_INSTANCE(t_name, t)         \
   static bool hlc_##t_name##_assign(                            \
     void* _target,                                              \
     const void* _source,                                        \
@@ -52,26 +52,26 @@ static inline bool hlc_assign(void* target, const void* source, hlc_Assign_insta
 
 extern HLC_API const hlc_Assign_instance hlc_no_assign_instance;
 
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(signed char, schar);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(schar, signed char);
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(short, short);
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(int, int);
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(long, long);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(long long, llong);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(llong, long long);
 
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(unsigned char, uchar);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(unsigned short, ushort);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(unsigned, uint);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(unsigned long, ulong);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(unsigned long long, ullong);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(uchar, unsigned char);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ushort, unsigned short);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(uint, unsigned);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ulong, unsigned long);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ullong, unsigned long long);
 
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(float, float);
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(double, double);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(long double, ldouble);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ldouble, long double);
 
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(size_t, size);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ptrdiff_t, ptrdiff);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(size, size_t);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ptrdiff, ptrdiff_t);
 
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(char, char);
-extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(wchar_t, wchar);
+extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(wchar, wchar_t);
 
 #endif
