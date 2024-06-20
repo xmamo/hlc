@@ -7,7 +7,6 @@
 #include <math.h>
 #include <stdalign.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <time.h>
 
 #include "layout.h"
@@ -100,32 +99,31 @@ static unsigned long hlc_random_next(hlc_Random* random) {
   return y;
 }
 
-
-#define HLC_DEFINE_RANDOM_UNSIGNED_IN(ut_name, ut)                   \
-  ut hlc_random_##ut_name##_in(hlc_Random* random, ut min, ut max) { \
-    assert(max >= min);                                              \
-                                                                     \
-    ut mask = 0;                                                     \
-    size_t bits = 0;                                                 \
-                                                                     \
-    while (mask < max - min) {                                       \
-      mask = (mask << 1) | 1;                                        \
-      bits += 1;                                                     \
-    }                                                                \
-                                                                     \
-    ut n;                                                            \
-                                                                     \
-    do {                                                             \
-      n = hlc_random_next(random);                                   \
-                                                                     \
-      for (size_t i = HLC_RANDOM_W; i < bits; i += HLC_RANDOM_W) {   \
-        n = (n << HLC_RANDOM_W) | hlc_random_next(random);           \
-      }                                                              \
-                                                                     \
-      n &= mask;                                                     \
-    } while (n > max - min);                                         \
-                                                                     \
-    return min + n;                                                  \
+#define HLC_DEFINE_RANDOM_UNSIGNED_IN(ut_name, ut)                      \
+  ut hlc_random_##ut_name##_in(hlc_Random* random, ut min, ut max) {    \
+    assert(max >= min);                                                 \
+                                                                        \
+    ut mask = 0;                                                        \
+    size_t bits = 0;                                                    \
+                                                                        \
+    while (mask < max - min) {                                          \
+      mask = (mask << 1) | 1;                                           \
+      bits += 1;                                                        \
+    }                                                                   \
+                                                                        \
+    ut n;                                                               \
+                                                                        \
+    do {                                                                \
+      n = 0;                                                            \
+                                                                        \
+      for (size_t i = 0; i < bits; i += HLC_RANDOM_W) {                 \
+        n = (ut)((n + 0ULL) << HLC_RANDOM_W) | hlc_random_next(random); \
+      }                                                                 \
+                                                                        \
+      n &= mask;                                                        \
+    } while (n > max - min);                                            \
+                                                                        \
+    return min + n;                                                     \
   }
 
 
