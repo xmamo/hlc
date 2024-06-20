@@ -101,23 +101,37 @@ static unsigned long hlc_random_next(hlc_Random* random) {
 }
 
 
-#define HLC_DEFINE_RANDOM_UNSIGNED_IN(ut_name, ut, ut_max)                        \
-  ut hlc_random_##ut_name##_in(hlc_Random* random, ut min, ut max) {              \
-    assert(max >= min);                                                           \
-                                                                                  \
-    ut n = hlc_random_next(random);                                               \
-                                                                                  \
-    for (size_t i = HLC_RANDOM_W; i < CHAR_BIT * sizeof(ut); i += HLC_RANDOM_W) { \
-      n = (n << HLC_RANDOM_W) | hlc_random_next(random);                          \
-    }                                                                             \
-                                                                                  \
-    return min > 0 || max < (ut_max) ? min + n % (max - min + 1) : n;             \
+#define HLC_DEFINE_RANDOM_UNSIGNED_IN(ut_name, ut)                   \
+  ut hlc_random_##ut_name##_in(hlc_Random* random, ut min, ut max) { \
+    assert(max >= min);                                              \
+                                                                     \
+    ut mask = 0;                                                     \
+    size_t bits = 0;                                                 \
+                                                                     \
+    while (mask < max - min) {                                       \
+      mask = (mask << 1) | 1;                                        \
+      bits += 1;                                                     \
+    }                                                                \
+                                                                     \
+    ut n;                                                            \
+                                                                     \
+    do {                                                             \
+      n = hlc_random_next(random);                                   \
+                                                                     \
+      for (size_t i = HLC_RANDOM_W; i < bits; i += HLC_RANDOM_W) {   \
+        n = (n << HLC_RANDOM_W) | hlc_random_next(random);           \
+      }                                                              \
+                                                                     \
+      n &= mask;                                                     \
+    } while (n > max - min);                                         \
+                                                                     \
+    return min + n;                                                  \
   }
 
 
-HLC_DEFINE_RANDOM_UNSIGNED_IN(uchar, unsigned char, UCHAR_MAX)
-HLC_DEFINE_RANDOM_UNSIGNED_IN(ushort, unsigned short, USHRT_MAX)
-HLC_DEFINE_RANDOM_UNSIGNED_IN(uint, unsigned, UINT_MAX)
-HLC_DEFINE_RANDOM_UNSIGNED_IN(ulong, unsigned long, ULONG_MAX)
-HLC_DEFINE_RANDOM_UNSIGNED_IN(ullong, unsigned long long, ULLONG_MAX)
-HLC_DEFINE_RANDOM_UNSIGNED_IN(size, size_t, SIZE_MAX)
+HLC_DEFINE_RANDOM_UNSIGNED_IN(uchar, unsigned char)
+HLC_DEFINE_RANDOM_UNSIGNED_IN(ushort, unsigned short)
+HLC_DEFINE_RANDOM_UNSIGNED_IN(uint, unsigned)
+HLC_DEFINE_RANDOM_UNSIGNED_IN(ulong, unsigned long)
+HLC_DEFINE_RANDOM_UNSIGNED_IN(ullong, unsigned long long)
+HLC_DEFINE_RANDOM_UNSIGNED_IN(size, size_t)
