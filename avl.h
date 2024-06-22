@@ -8,7 +8,7 @@
 #include "api.h"
 #include "layout.h"
 #include "traits/assign.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 typedef struct hlc_AVL hlc_AVL;
 
@@ -111,7 +111,7 @@ HLC_API hlc_AVL* hlc_avl_insert(
 HLC_API hlc_AVL* hlc_avl_remove(
   hlc_AVL* node,
   hlc_Layout element_layout,
-  hlc_Delete_instance element_delete_instance
+  hlc_Destroy_instance element_destroy_instance
 );
 
 /// @memberof hlc_AVL

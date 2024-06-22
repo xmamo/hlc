@@ -13,7 +13,7 @@
 #include "layout.h"
 #include "math.h"
 #include "traits/assign.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 
 struct hlc_AVL {
@@ -340,7 +340,7 @@ static hlc_AVL* hlc_avl_update_after_insertion(hlc_AVL* node) {
 }
 
 
-/// @param node The parent of the node which was deleted. The balance of said parent must already have been updated.
+/// @param node The parent of the node which was removed. The balance of said parent must already have been updated.
 /// @param root The ancestor to be returned if this function returns early.
 /// @return The new root of the subtree where the node was removed, after rebalancing.
 static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* ancestor) {
@@ -394,7 +394,7 @@ hlc_AVL* hlc_avl_insert(
 hlc_AVL* hlc_avl_remove(
   hlc_AVL* node,
   hlc_Layout element_layout,
-  hlc_Delete_instance element_delete_instance
+  hlc_Destroy_instance element_destroy_instance
 ) {
   assert(node != NULL);
 
@@ -406,7 +406,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* a = HLC_AVL_LINKS(node)[+1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
-    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
+    hlc_destroy(hlc_avl_element(node, element_layout), element_destroy_instance);
     free(node);
 
     if (a != NULL) {
@@ -431,7 +431,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* a = HLC_AVL_LINKS(node)[-1];
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
-    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
+    hlc_destroy(hlc_avl_element(node, element_layout), element_destroy_instance);
     free(node);
 
     if (a != NULL) {
@@ -460,7 +460,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* node_parent = HLC_AVL_LINKS(node)[0];
     signed char node_direction = node->direction;
     signed char node_balance = node->balance;
-    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
+    hlc_destroy(hlc_avl_element(node, element_layout), element_destroy_instance);
     free(node);
 
     HLC_AVL_LINKS(a)[0] = x;
@@ -502,7 +502,7 @@ hlc_AVL* hlc_avl_remove(
     hlc_AVL* y = HLC_AVL_LINKS(x)[0];
 
     hlc_avl_swap(node, x);
-    hlc_delete(hlc_avl_element(node, element_layout), element_delete_instance);
+    hlc_destroy(hlc_avl_element(node, element_layout), element_destroy_instance);
     free(node);
 
     if (b != NULL) {

@@ -12,14 +12,14 @@ typedef struct hlc_Random hlc_Random;
 extern HLC_API const hlc_Layout hlc_random_layout;
 
 /// @memberof hlc_Random
-/// @brief Makes a new random number generator.
+/// @brief Creates a new random number generator.
 /// @pre random != NULL
-HLC_API void hlc_random_make(hlc_Random* random);
+HLC_API void hlc_random_create(hlc_Random* random);
 
 /// @memberof hlc_Random
-/// @brief Makes a new random number generator.
+/// @brief Creates a new random number generator.
 /// @pre random != NULL
-HLC_API void hlc_random_make_with(hlc_Random* random, unsigned long seed);
+HLC_API void hlc_random_create_with(hlc_Random* random, unsigned long seed);
 
 /// @memberof hlc_Random
 /// @brief Produces a random unsigned char in the range [min, max].

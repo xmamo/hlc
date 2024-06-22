@@ -12,7 +12,7 @@
 #include "stack.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 
 struct hlc_Map {
@@ -22,27 +22,27 @@ struct hlc_Map {
   hlc_Layout value_layout;
   hlc_Compare_instance key_compare_instance;
   hlc_Assign_instance key_assign_instance;
-  hlc_Delete_instance key_delete_instance;
+  hlc_Destroy_instance key_destroy_instance;
   hlc_Assign_instance value_assign_instance;
-  hlc_Delete_instance value_delete_instance;
+  hlc_Destroy_instance value_destroy_instance;
 };
 
 
 const hlc_Layout hlc_map_layout = {
-  .size = offsetof(hlc_Map, value_delete_instance) + sizeof(hlc_Delete_instance),
+  .size = offsetof(hlc_Map, value_destroy_instance) + sizeof(hlc_Destroy_instance),
   .alignment = alignof(hlc_Map),
 };
 
 
-void hlc_map_make(
+void hlc_map_create(
   hlc_Map* map,
   hlc_Layout key_layout,
   hlc_Layout value_layout,
   hlc_Compare_instance key_compare_instance,
   hlc_Assign_instance key_assign_instance,
-  hlc_Delete_instance key_delete_instance,
+  hlc_Destroy_instance key_destroy_instance,
   hlc_Assign_instance value_assign_instance,
-  hlc_Delete_instance value_delete_instance
+  hlc_Destroy_instance value_destroy_instance
 ) {
   assert(map != NULL);
 
@@ -52,9 +52,9 @@ void hlc_map_make(
   map->value_layout = value_layout;
   map->key_compare_instance = key_compare_instance;
   map->key_assign_instance = key_assign_instance;
-  map->key_delete_instance = key_delete_instance;
+  map->key_destroy_instance = key_destroy_instance;
   map->value_assign_instance = value_assign_instance;
-  map->value_delete_instance = value_delete_instance;
+  map->value_destroy_instance = value_destroy_instance;
 }
 
 
@@ -184,37 +184,37 @@ bool hlc_map_insert_with(
 }
 
 
-typedef struct hlc_Map_element_delete_context {
+typedef struct hlc_Map_element_destroy_context {
   size_t key_offset;
-  hlc_Delete_instance key_delete_instance;
+  hlc_Destroy_instance key_destroy_instance;
   size_t value_offset;
-  hlc_Delete_instance value_delete_instance;
-} hlc_Map_element_delete_context;
+  hlc_Destroy_instance value_destroy_instance;
+} hlc_Map_element_destroy_context;
 
 
-static void hlc_map_element_delete(void* target, const hlc_Delete_trait* trait, void* _context) {
+static void hlc_map_element_destroy(void* target, const hlc_Destroy_trait* trait, void* _context) {
   (void)trait;
-  const hlc_Map_element_delete_context* context = _context;
+  const hlc_Map_element_destroy_context* context = _context;
 
   assert(target != NULL);
   assert(context != NULL);
 
-  hlc_delete((char*)target + context->key_offset, context->key_delete_instance);
-  hlc_delete((char*)target + context->value_offset, context->value_delete_instance);
+  hlc_destroy((char*)target + context->key_offset, context->key_destroy_instance);
+  hlc_destroy((char*)target + context->value_offset, context->value_destroy_instance);
 }
 
 
 bool hlc_map_remove(hlc_Map* map, const void* key) {
   assert(map != NULL);
-  return hlc_map_remove_with(map, key, map->key_delete_instance, map->value_delete_instance);
+  return hlc_map_remove_with(map, key, map->key_destroy_instance, map->value_destroy_instance);
 }
 
 
 bool hlc_map_remove_with(
   hlc_Map* map,
   const void* key,
-  hlc_Delete_instance key_delete_instance,
-  hlc_Delete_instance value_delete_instance
+  hlc_Destroy_instance key_destroy_instance,
+  hlc_Destroy_instance value_destroy_instance
 ) {
   assert(map != NULL);
 
@@ -222,20 +222,20 @@ bool hlc_map_remove_with(
   size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
   size_t value_offset = hlc_layout_add(&element_layout, map->value_layout);
 
-  hlc_Delete_trait element_delete_trait = {
-    .delete = hlc_map_element_delete,
+  hlc_Destroy_trait element_destroy_trait = {
+    .destroy = hlc_map_element_destroy,
   };
 
-  hlc_Map_element_delete_context element_delete_context = {
+  hlc_Map_element_destroy_context element_destroy_context = {
     .key_offset = key_offset,
-    .key_delete_instance = key_delete_instance,
+    .key_destroy_instance = key_destroy_instance,
     .value_offset = value_offset,
-    .value_delete_instance = value_delete_instance,
+    .value_destroy_instance = value_destroy_instance,
   };
 
-  hlc_Delete_instance element_delete_instance = {
-    .trait = &element_delete_trait,
-    .context = &element_delete_context,
+  hlc_Destroy_instance element_destroy_instance = {
+    .trait = &element_destroy_trait,
+    .context = &element_destroy_context,
   };
 
   hlc_AVL* node = map->root;
@@ -245,7 +245,7 @@ bool hlc_map_remove_with(
     signed char ordering = hlc_compare(key, (char*)node_element + key_offset, map->key_compare_instance);
 
     if (ordering == 0) {
-      node = hlc_avl_remove(node, element_layout, element_delete_instance);
+      node = hlc_avl_remove(node, element_layout, element_destroy_instance);
 
       if (node == NULL || hlc_avl_link(node, 0) == NULL) {
         map->root = node;

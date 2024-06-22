@@ -17,7 +17,7 @@
 #include "stack.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 
 static void shuffle(hlc_Random* random, int* xs, size_t count) {
@@ -49,7 +49,7 @@ int main(void) {
   #endif
 
   hlc_Random* random = HLC_STACK_ALLOCATE(hlc_random_layout.size);
-  hlc_random_make(random);
+  hlc_random_create(random);
 
   puts("Testing hlc_Set:");
 
@@ -65,12 +65,12 @@ int main(void) {
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
 
-    hlc_set_make(
+    hlc_set_create(
       set,
       HLC_LAYOUT_OF(int),
       hlc_int_compare_instance,
       hlc_int_assign_instance,
-      hlc_no_delete_instance
+      hlc_no_destroy_instance
     );
 
     shuffle(random, elements, COUNT);
@@ -107,15 +107,15 @@ int main(void) {
 
     hlc_Map* map = HLC_STACK_ALLOCATE(hlc_map_layout.size);
 
-    hlc_map_make(
+    hlc_map_create(
       map,
       HLC_LAYOUT_OF(int),
       HLC_LAYOUT_OF(double),
       hlc_int_compare_instance,
       hlc_int_assign_instance,
-      hlc_no_delete_instance,
+      hlc_no_destroy_instance,
       hlc_double_assign_instance,
-      hlc_no_delete_instance
+      hlc_no_destroy_instance
     );
 
     shuffle(random, keys, COUNT);

@@ -44,7 +44,7 @@ add_executable(hlc
   set.c
   traits/assign.c
   traits/compare.c
-  traits/delete.c
+  traits/destroy.c
   main.c)
 
 target_compile_definitions(hlc

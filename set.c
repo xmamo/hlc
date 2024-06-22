@@ -10,7 +10,7 @@
 #include "layout.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 
 struct hlc_Set {
@@ -19,22 +19,22 @@ struct hlc_Set {
   hlc_Layout element_layout;
   hlc_Compare_instance element_compare_instance;
   hlc_Assign_instance element_assign_instance;
-  hlc_Delete_instance element_delete_instance;
+  hlc_Destroy_instance element_destroy_instance;
 };
 
 
 const hlc_Layout hlc_set_layout = {
-  .size = offsetof(hlc_Set, element_delete_instance) + sizeof(hlc_Delete_instance),
+  .size = offsetof(hlc_Set, element_destroy_instance) + sizeof(hlc_Destroy_instance),
   .alignment = alignof(hlc_Set),
 };
 
 
-void hlc_set_make(
+void hlc_set_create(
   hlc_Set* set,
   hlc_Layout element_layout,
   hlc_Compare_instance element_compare_instance,
   hlc_Assign_instance element_assign_instance,
-  hlc_Delete_instance element_delete_instance
+  hlc_Destroy_instance element_destroy_instance
 ) {
   assert(set != NULL);
 
@@ -43,7 +43,7 @@ void hlc_set_make(
   set->element_layout = element_layout;
   set->element_compare_instance = element_compare_instance;
   set->element_assign_instance = element_assign_instance;
-  set->element_delete_instance = element_delete_instance;
+  set->element_destroy_instance = element_destroy_instance;
 }
 
 
@@ -108,11 +108,11 @@ bool hlc_set_insert_with(hlc_Set* set, const void* element, hlc_Assign_instance 
 
 bool hlc_set_remove(hlc_Set* set, const void* element) {
   assert(set != NULL);
-  return hlc_set_remove_with(set, element, set->element_delete_instance);
+  return hlc_set_remove_with(set, element, set->element_destroy_instance);
 }
 
 
-bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Delete_instance element_delete_instance) {
+bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Destroy_instance element_destroy_instance) {
   assert(set != NULL);
 
   hlc_AVL* node = set->root;
@@ -122,7 +122,7 @@ bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Delete_instance 
     signed char ordering = hlc_compare(element, node_element, set->element_compare_instance);
 
     if (ordering == 0) {
-      node = hlc_avl_remove(node, set->element_layout, element_delete_instance);
+      node = hlc_avl_remove(node, set->element_layout, element_destroy_instance);
 
       if (node == NULL || hlc_avl_link(node, 0) == NULL) {
         set->root = node;

@@ -9,7 +9,7 @@
 #include "layout.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 typedef struct hlc_Set hlc_Set;
 
@@ -17,14 +17,14 @@ typedef struct hlc_Set hlc_Set;
 extern HLC_API const hlc_Layout hlc_set_layout;
 
 /// @memberof hlc_Set
-/// @brief Makes an empty set.
+/// @brief Creates an empty set.
 /// @pre set != NULL
-HLC_API void hlc_set_make(
+HLC_API void hlc_set_create(
   hlc_Set* set,
   hlc_Layout element_layout,
   hlc_Compare_instance element_compare_instance,
   hlc_Assign_instance element_assign_instance,
-  hlc_Delete_instance element_delete_instance
+  hlc_Destroy_instance element_destroy_instance
 );
 
 /// @memberof hlc_Set
@@ -54,7 +54,7 @@ HLC_API bool hlc_set_remove(hlc_Set* set, const void* element);
 /// @brief Removes an element from this set.
 /// @return true on success, false if the element was not an element of this set.
 /// @pre set != NULL
-HLC_API bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Delete_instance element_delete_instance);
+HLC_API bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Destroy_instance element_destroy_instance);
 
 /// @memberof hlc_Set
 /// @brief Checks if this set contains the given key.

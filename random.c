@@ -49,7 +49,7 @@ const hlc_Layout hlc_random_layout = {
 };
 
 
-void hlc_random_make(hlc_Random* random) {
+void hlc_random_create(hlc_Random* random) {
   time_t t = time(NULL);
 
   if (t != (time_t)-1) {
@@ -57,16 +57,16 @@ void hlc_random_make(hlc_Random* random) {
 
     if (isfinite(diff)) {
       assert(diff >= 0);
-      hlc_random_make_with(random, (unsigned long)fmod(diff, pow(2.0, CHAR_BIT * sizeof(unsigned long))));
+      hlc_random_create_with(random, (unsigned long)fmod(diff, pow(2.0, CHAR_BIT * sizeof(unsigned long))));
       return;
     }
   }
 
-  hlc_random_make_with(random, 0);
+  hlc_random_create_with(random, 0);
 }
 
 
-void hlc_random_make_with(hlc_Random* random, unsigned long seed) {
+void hlc_random_create_with(hlc_Random* random, unsigned long seed) {
   assert(random != NULL);
 
   random->x[0] = seed;

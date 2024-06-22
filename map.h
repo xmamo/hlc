@@ -9,7 +9,7 @@
 #include "layout.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
-#include "traits/delete.h"
+#include "traits/destroy.h"
 
 typedef struct hlc_Map hlc_Map;
 
@@ -17,17 +17,17 @@ typedef struct hlc_Map hlc_Map;
 extern HLC_API const hlc_Layout hlc_map_layout;
 
 /// @memberof hlc_Map
-/// @brief Makes an empty map.
+/// @brief Creates an empty map.
 /// @pre map != NULL
-HLC_API void hlc_map_make(
+HLC_API void hlc_map_create(
   hlc_Map* map,
   hlc_Layout key_layout,
   hlc_Layout value_layout,
   hlc_Compare_instance key_compare_instance,
   hlc_Assign_instance key_assign_instance,
-  hlc_Delete_instance key_delete_instance,
+  hlc_Destroy_instance key_destroy_instance,
   hlc_Assign_instance value_assign_instance,
-  hlc_Delete_instance value_delete_instance
+  hlc_Destroy_instance value_destroy_instance
 );
 
 /// @memberof hlc_Map
@@ -66,8 +66,8 @@ HLC_API bool hlc_map_remove(hlc_Map* map, const void* key);
 HLC_API bool hlc_map_remove_with(
   hlc_Map* map,
   const void* key,
-  hlc_Delete_instance key_delete_instance,
-  hlc_Delete_instance value_delete_instance
+  hlc_Destroy_instance key_destroy_instance,
+  hlc_Destroy_instance value_destroy_instance
 );
 
 /// @memberof hlc_Map
