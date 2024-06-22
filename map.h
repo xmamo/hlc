@@ -95,4 +95,18 @@ HLC_API bool hlc_map_contains(const hlc_Map* map, const void* key);
 /// @pre map != NULL && stream != NULL
 HLC_API void hlc_map_dot(const hlc_Map* map, FILE* stream);
 
+/// @memberof hlc_Map
+/// @brief Destroys this map.
+/// @pre map != NULL
+HLC_API void hlc_map_destroy(hlc_Map* map);
+
+/// @memberof hlc_Map
+/// @brief Destroys this map.
+/// @pre map != NULL
+HLC_API void hlc_map_destroy_with(
+  hlc_Map* map,
+  hlc_Destroy_instance key_destroy_instance,
+  hlc_Destroy_instance value_destroy_instance
+);
+
 #endif

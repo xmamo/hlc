@@ -663,3 +663,18 @@ void hlc_avl_dot(const hlc_AVL* node, FILE* stream) {
     fputs("strict digraph {}\n", stream);
   }
 }
+
+
+void hlc_avl_delete(
+  hlc_AVL* node,
+  hlc_Layout element_layout,
+  hlc_Destroy_instance element_destroy_instance
+) {
+  if (node != NULL) {
+    hlc_avl_delete(HLC_AVL_LINKS(node)[-1], element_layout, element_destroy_instance);
+    hlc_avl_delete(HLC_AVL_LINKS(node)[+1], element_layout, element_destroy_instance);
+
+    hlc_destroy(hlc_avl_element(node, element_layout), element_destroy_instance);
+    free(node);
+  }
+}

@@ -296,3 +296,42 @@ void hlc_map_dot(const hlc_Map* map, FILE* stream) {
   assert(map != NULL);
   hlc_avl_dot(map->root, stream);
 }
+
+
+void hlc_map_destroy(hlc_Map* map) {
+  assert(map != NULL);
+  hlc_map_destroy_with(map, map->key_destroy_instance, map->value_destroy_instance);
+}
+
+
+void hlc_map_destroy_with(
+  hlc_Map* map,
+  hlc_Destroy_instance key_destroy_instance,
+  hlc_Destroy_instance value_destroy_instance
+) {
+  assert(map != NULL);
+
+  hlc_Layout element_layout = {.size = 0, .alignment = 1};
+  size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
+  size_t value_offset = hlc_layout_add(&element_layout, map->value_layout);
+
+  hlc_Destroy_trait element_destroy_trait = {
+    .destroy = hlc_map_element_destroy,
+  };
+
+  hlc_Map_element_destroy_context element_destroy_context = {
+    .key_offset = key_offset,
+    .key_destroy_instance = key_destroy_instance,
+    .value_offset = value_offset,
+    .value_destroy_instance = value_destroy_instance,
+  };
+
+  hlc_Destroy_instance element_destroy_instance = {
+    .trait = &element_destroy_trait,
+    .context = &element_destroy_context,
+  };
+
+  hlc_avl_delete(map->root, element_layout, element_destroy_instance);
+  map->root = NULL;
+  map->count = 0;
+}

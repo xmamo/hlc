@@ -164,3 +164,18 @@ void hlc_set_dot(const hlc_Set* set, FILE* stream) {
   assert(set != NULL);
   hlc_avl_dot(set->root, stream);
 }
+
+
+void hlc_set_destroy(hlc_Set* set) {
+  assert(set != NULL);
+  hlc_set_destroy_with(set, set->element_destroy_instance);
+}
+
+
+void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_instance) {
+  assert(set != NULL);
+
+  hlc_avl_delete(set->root, set->element_layout, element_destroy_instance);
+  set->root = NULL;
+  set->count = 0;
+}

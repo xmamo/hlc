@@ -66,4 +66,14 @@ HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
 /// @pre set != NULL && stream != NULL
 HLC_API void hlc_set_dot(const hlc_Set* set, FILE* stream);
 
+/// @memberof hlc_Set
+/// @brief Destroys this set.
+/// @pre set != NULL
+HLC_API void hlc_set_destroy(hlc_Set* set);
+
+/// @memberof hlc_Set
+/// @brief Destroys this set.
+/// @pre set != NULL
+HLC_API void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_instance);
+
 #endif

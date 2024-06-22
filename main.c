@@ -89,7 +89,9 @@ int main(void) {
       assert(ok && !contains);
     }
 
+    hlc_set_destroy(set);
     HLC_STACK_FREE(set);
+
     free(elements);
   }
 
@@ -137,7 +139,9 @@ int main(void) {
       assert(ok && !contains && lookup == NULL);
     }
 
+    hlc_map_destroy(map);
     HLC_STACK_FREE(map);
+
     free(keys);
   }
 
