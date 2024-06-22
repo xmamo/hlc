@@ -19,3 +19,14 @@ size_t hlc_layout_add(hlc_Layout* layout, hlc_Layout member) {
 
   return member_offset;
 }
+
+
+void hlc_layout_pad(hlc_Layout* layout) {
+  assert(layout != NULL);
+
+  if (layout->alignment < 1) {
+    layout->alignment = 1;
+  }
+
+  layout->size = ((layout->size + (layout->alignment - 1)) / layout->alignment) * layout->alignment;
+}

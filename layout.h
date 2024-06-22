@@ -11,6 +11,7 @@ typedef struct hlc_Layout {
   size_t alignment;
 } hlc_Layout;
 
+/// @relates hlc_Layout
 #define HLC_LAYOUT_OF(t) ((hlc_Layout){ \
   .size = sizeof(t),                    \
   .alignment = alignof(t),              \
@@ -21,5 +22,9 @@ typedef struct hlc_Layout {
 /// @return The offset of the member which was added.
 /// @pre layout != NULL
 HLC_API size_t hlc_layout_add(hlc_Layout* layout, hlc_Layout member);
+
+/// @memberof hlc_Layout
+/// @brief Pads this layout by making its size a multiple of its alignment.
+HLC_API void hlc_layout_pad(hlc_Layout* layout);
 
 #endif
