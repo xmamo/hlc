@@ -103,4 +103,28 @@ HLC_API void hlc_map_destroy_with(
   hlc_Destroy_instance value_destroy_instance
 );
 
+/// @relates hlc_Map
+typedef struct hlc_Map_iterator hlc_Map_iterator;
+
+/// @memberof hlc_Map_iterator
+extern HLC_API const hlc_Layout hlc_map_iterator_layout;
+
+/// @relates hlc_Map_iterator
+typedef struct hlc_Map_kv_ref {
+  const void* key;
+  void* value;
+} hlc_Map_kv_ref;
+
+/// @memberof hlc_Map
+/// @relates hlc_Map_iterator
+/// @brief Creates an iterator for this map.
+/// @pre map != NULL && iterator != NULL
+HLC_API void hlc_map_iterator(const hlc_Map* map, hlc_Map_iterator* iterator);
+
+/// @memberof hlc_Map_iterator
+/// @brief Returns the current key/value pair and advances the iterator.
+/// @return Pointers to the current key and value, or a pair of NULLs if the last key/value pair of the map was reached.
+/// @pre iterator != NULL
+HLC_API hlc_Map_kv_ref hlc_map_iterator_next(hlc_Map_iterator* iterator);
+
 #endif
