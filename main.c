@@ -35,8 +35,8 @@ static void shuffle(hlc_Random* random, int* xs, size_t count) {
 #undef NDEBUG
 #include <assert.h>
 
-#define ITERATIONS (10)
-#define COUNT (10000)
+#define ITERATIONS 10
+#define COUNT 10000
 
 
 int main(void) {
