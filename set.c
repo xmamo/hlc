@@ -173,3 +173,37 @@ void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_ins
   set->root = NULL;
   set->count = 0;
 }
+
+
+struct hlc_Set_iterator {
+  const hlc_AVL* current;
+  hlc_Layout element_layout;
+};
+
+
+const hlc_Layout hlc_set_iterator_layout = {
+  .size = offsetof(hlc_Set_iterator, element_layout) + sizeof(hlc_Layout),
+  .alignment = alignof(hlc_Set_iterator),
+};
+
+
+void hlc_set_iterator(const hlc_Set* set, hlc_Set_iterator* iterator) {
+  assert(set != NULL);
+  assert(iterator != NULL);
+
+  iterator->current = set->root != NULL ? hlc_avl_xmost(set->root, -1) : NULL;
+  iterator->element_layout = set->element_layout;
+}
+
+
+const void* hlc_set_iterator_next(hlc_Set_iterator* iterator) {
+  assert(iterator != NULL);
+
+  if (iterator->current != NULL) {
+    const void* element = hlc_avl_element(iterator->current, iterator->element_layout);
+    iterator->current = hlc_avl_xcessor(iterator->current, +1);
+    return element;
+  } else {
+    return NULL;
+  }
+}

@@ -71,4 +71,22 @@ HLC_API void hlc_set_destroy(hlc_Set* set);
 /// @pre set != NULL
 HLC_API void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_instance);
 
+/// @relates hlc_Set
+typedef struct hlc_Set_iterator hlc_Set_iterator;
+
+/// @memberof hlc_Set_iterator
+extern HLC_API const hlc_Layout hlc_set_iterator_layout;
+
+/// @memberof hlc_Set
+/// @relates hlc_Set_iterator
+/// @brief Creates an iterator for this set.
+/// @pre set != NULL && iterator != NULL
+HLC_API void hlc_set_iterator(const hlc_Set* set, hlc_Set_iterator* iterator);
+
+/// @memberof hlc_Set_iterator
+/// @brief Returns the current element and advances the iterator.
+/// @return The current element, or NULL if the last element of the set was reached.
+/// @pre iterator != NULL
+HLC_API const void* hlc_set_iterator_next(hlc_Set_iterator* iterator);
+
 #endif
