@@ -89,12 +89,6 @@ HLC_API void* hlc_map_lookup(const hlc_Map* map, const void* key);
 /// @pre set != NULL
 HLC_API bool hlc_map_contains(const hlc_Map* map, const void* key);
 
-
-/// @memberof hlc_Map
-/// @brief Produces an implementation-defined Graphviz representation of this map.
-/// @pre map != NULL && stream != NULL
-HLC_API void hlc_map_dot(const hlc_Map* map, FILE* stream);
-
 /// @memberof hlc_Map
 /// @brief Destroys this map.
 /// @pre map != NULL

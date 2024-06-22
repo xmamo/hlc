@@ -120,11 +120,6 @@ HLC_API hlc_AVL* hlc_avl_remove(
 HLC_API void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2);
 
 /// @memberof hlc_AVL
-/// @brief Produces an implementation-defined Graphviz representation of this subtree.
-/// @pre stream != NULL
-HLC_API void hlc_avl_dot(const hlc_AVL* node, FILE* stream);
-
-/// @memberof hlc_AVL
 /// @brief Deletes this AVL tree.
 /// @pre node == NULL || hlc_avl_link(node, 0) == NULL
 HLC_API void hlc_avl_delete(

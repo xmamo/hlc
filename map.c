@@ -292,12 +292,6 @@ bool hlc_map_contains(const hlc_Map* map, const void* key) {
 }
 
 
-void hlc_map_dot(const hlc_Map* map, FILE* stream) {
-  assert(map != NULL);
-  hlc_avl_dot(map->root, stream);
-}
-
-
 void hlc_map_destroy(hlc_Map* map) {
   assert(map != NULL);
   hlc_map_destroy_with(map, map->key_destroy_instance, map->value_destroy_instance);

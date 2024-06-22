@@ -160,12 +160,6 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 }
 
 
-void hlc_set_dot(const hlc_Set* set, FILE* stream) {
-  assert(set != NULL);
-  hlc_avl_dot(set->root, stream);
-}
-
-
 void hlc_set_destroy(hlc_Set* set) {
   assert(set != NULL);
   hlc_set_destroy_with(set, set->element_destroy_instance);

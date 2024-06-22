@@ -62,11 +62,6 @@ HLC_API bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Destroy_
 HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
 
 /// @memberof hlc_Set
-/// @brief Produces an implementation-defined Graphviz representation of this set.
-/// @pre set != NULL && stream != NULL
-HLC_API void hlc_set_dot(const hlc_Set* set, FILE* stream);
-
-/// @memberof hlc_Set
 /// @brief Destroys this set.
 /// @pre set != NULL
 HLC_API void hlc_set_destroy(hlc_Set* set);
