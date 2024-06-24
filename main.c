@@ -70,6 +70,7 @@ int main(void) {
       HLC_LAYOUT_OF(int),
       hlc_int_compare_instance,
       hlc_int_assign_instance,
+      hlc_int_reassign_instance,
       hlc_no_destroy_instance
     );
 
@@ -115,8 +116,10 @@ int main(void) {
       HLC_LAYOUT_OF(double),
       hlc_int_compare_instance,
       hlc_int_assign_instance,
+      hlc_int_reassign_instance,
       hlc_no_destroy_instance,
       hlc_double_assign_instance,
+      hlc_double_reassign_instance,
       hlc_no_destroy_instance
     );
 

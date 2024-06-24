@@ -11,6 +11,7 @@
 #include "traits/assign.h"
 #include "traits/compare.h"
 #include "traits/destroy.h"
+#include "traits/reassign.h"
 
 
 struct hlc_Set {
@@ -19,6 +20,7 @@ struct hlc_Set {
   hlc_Layout element_layout;
   hlc_Compare_instance element_compare_instance;
   hlc_Assign_instance element_assign_instance;
+  hlc_Reassign_instance element_reassign_instance;
   hlc_Destroy_instance element_destroy_instance;
 };
 
@@ -34,6 +36,7 @@ void hlc_set_create(
   hlc_Layout element_layout,
   hlc_Compare_instance element_compare_instance,
   hlc_Assign_instance element_assign_instance,
+  hlc_Reassign_instance element_reassign_instance,
   hlc_Destroy_instance element_destroy_instance
 ) {
   assert(set != NULL);
@@ -43,6 +46,7 @@ void hlc_set_create(
   set->element_layout = element_layout;
   set->element_compare_instance = element_compare_instance;
   set->element_assign_instance = element_assign_instance;
+  set->element_reassign_instance = element_reassign_instance;
   set->element_destroy_instance = element_destroy_instance;
 }
 
@@ -55,11 +59,22 @@ size_t hlc_set_count(const hlc_Set* set) {
 
 bool hlc_set_insert(hlc_Set* set, const void* element) {
   assert(set != NULL);
-  return hlc_set_insert_with(set, element, set->element_assign_instance);
+
+  return hlc_set_insert_with(
+    set,
+    element,
+    set->element_assign_instance,
+    set->element_reassign_instance
+  );
 }
 
 
-bool hlc_set_insert_with(hlc_Set* set, const void* element, hlc_Assign_instance element_assign_instance) {
+bool hlc_set_insert_with(
+  hlc_Set* set,
+  const void* element,
+  hlc_Assign_instance element_assign_instance,
+  hlc_Reassign_instance element_reassign_instance
+) {
   assert(set != NULL);
 
   if (set->root != NULL) {
@@ -70,7 +85,7 @@ bool hlc_set_insert_with(hlc_Set* set, const void* element, hlc_Assign_instance 
       signed char ordering = hlc_compare(element, node_element, set->element_compare_instance);
 
       if (ordering == 0)
-        return hlc_assign(node_element, element, element_assign_instance);
+        return hlc_reassign(node_element, element, element_reassign_instance);
 
       hlc_AVL* node_child = hlc_avl_link(node, ordering);
 
