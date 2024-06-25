@@ -10,7 +10,6 @@
 #include "traits/assign.h"
 #include "traits/compare.h"
 #include "traits/destroy.h"
-#include "traits/reassign.h"
 
 typedef struct hlc_Set hlc_Set;
 
@@ -36,12 +35,7 @@ HLC_API size_t hlc_set_count(const hlc_Set* set);
 /// @brief Inserts an element into this set.
 /// @return true on success, false on insufficient memory.
 /// @pre set != NULL
-HLC_API bool hlc_set_insert(
-  hlc_Set* set,
-  const void* element,
-  hlc_Assign_instance element_assign_instance,
-  hlc_Reassign_instance element_reassign_instance
-);
+HLC_API bool hlc_set_insert(hlc_Set* set, const void* element, hlc_Assign_instance element_assign_instance);
 
 /// @memberof hlc_Set
 /// @brief Removes an element from this set.

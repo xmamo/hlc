@@ -11,7 +11,6 @@
 #include "traits/assign.h"
 #include "traits/compare.h"
 #include "traits/destroy.h"
-#include "traits/reassign.h"
 
 
 struct hlc_Set {
@@ -51,12 +50,7 @@ size_t hlc_set_count(const hlc_Set* set) {
 }
 
 
-bool hlc_set_insert(
-  hlc_Set* set,
-  const void* element,
-  hlc_Assign_instance element_assign_instance,
-  hlc_Reassign_instance element_reassign_instance
-) {
+bool hlc_set_insert(hlc_Set* set, const void* element, hlc_Assign_instance element_assign_instance) {
   assert(set != NULL);
 
   if (set->root != NULL) {
@@ -67,7 +61,7 @@ bool hlc_set_insert(
       signed char ordering = hlc_compare(element, node_element, set->element_compare_instance);
 
       if (ordering == 0)
-        return hlc_reassign(node_element, element, element_reassign_instance);
+        return hlc_reassign(node_element, element, element_assign_instance);
 
       hlc_AVL* node_child = hlc_avl_link(node, ordering);
 

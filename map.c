@@ -13,7 +13,6 @@
 #include "traits/assign.h"
 #include "traits/compare.h"
 #include "traits/destroy.h"
-#include "traits/reassign.h"
 
 
 struct hlc_Map {
@@ -89,20 +88,10 @@ static bool hlc_map_element_assign(void* target, const void* _source, const hlc_
 }
 
 
-typedef struct hlc_Map_element_reassign_context {
-  hlc_Layout element_layout;
-  size_t key_offset;
-  size_t value_offset;
-  hlc_Reassign_instance key_reassign_instance;
-  hlc_Destroy_instance key_destroy_instance;
-  hlc_Reassign_instance value_reassign_instance;
-} hlc_Map_element_reassign_context;
-
-
-static bool hlc_map_element_reassign(void* target, const void* _source, const hlc_Reassign_trait* trait, void* _context) {
+static bool hlc_map_element_reassign(void* target, const void* _source, const hlc_Assign_trait* trait, void* _context) {
   const hlc_Map_kv_ref* source = _source;
   (void)trait;
-  const hlc_Map_element_reassign_context* context = _context;
+  const hlc_Map_element_assign_context* context = _context;
 
   assert(source != NULL);
   assert(target != NULL);
@@ -114,8 +103,8 @@ static bool hlc_map_element_reassign(void* target, const void* _source, const hl
 
     bool success = false;
 
-    if (hlc_reassign((char*)target + context->key_offset, source->key, context->key_reassign_instance)) {
-      if (hlc_reassign((char*)target + context->value_offset, source->value, context->value_reassign_instance)) {
+    if (hlc_reassign((char*)target + context->key_offset, source->key, context->key_assign_instance)) {
+      if (hlc_reassign((char*)target + context->value_offset, source->value, context->value_assign_instance)) {
         success = true;
       } else {
         hlc_destroy((char*)target + context->key_offset, context->key_destroy_instance);
@@ -139,9 +128,7 @@ bool hlc_map_insert(
   const void* key,
   const void* value,
   hlc_Assign_instance key_assign_instance,
-  hlc_Reassign_instance key_reassign_instance,
-  hlc_Assign_instance value_assign_instance,
-  hlc_Reassign_instance value_reassign_instance
+  hlc_Assign_instance value_assign_instance
 ) {
   assert(map != NULL);
 
@@ -153,6 +140,7 @@ bool hlc_map_insert(
 
   hlc_Assign_trait element_assign_trait = {
     .assign = hlc_map_element_assign,
+    .reassign = hlc_map_element_reassign,
   };
 
   hlc_Map_element_assign_context element_assign_context = {
@@ -169,24 +157,6 @@ bool hlc_map_insert(
     .context = &element_assign_context,
   };
 
-  hlc_Reassign_trait element_reassign_trait = {
-    .reassign = hlc_map_element_reassign,
-  };
-
-  hlc_Map_element_reassign_context element_reassign_context = {
-    .element_layout = element_layout,
-    .key_offset = key_offset,
-    .value_offset = value_offset,
-    .key_reassign_instance = key_reassign_instance,
-    .key_destroy_instance = map->key_destroy_instance,
-    .value_reassign_instance = value_reassign_instance,
-  };
-
-  hlc_Reassign_instance element_reassign_instance = {
-    .trait = &element_reassign_trait,
-    .context = &element_reassign_context,
-  };
-
   if (map->root != NULL) {
     hlc_AVL* node = map->root;
 
@@ -195,7 +165,7 @@ bool hlc_map_insert(
       signed char ordering = hlc_compare(key, (char*)node_element + key_offset, map->key_compare_instance);
 
       if (ordering == 0)
-        return hlc_reassign(node_element, &kv_ref, element_reassign_instance);
+        return hlc_reassign(node_element, &kv_ref, element_assign_instance);
 
       hlc_AVL* node_child = hlc_avl_link(node, ordering);
 

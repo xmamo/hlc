@@ -10,6 +10,7 @@
 
 typedef struct hlc_Assign_trait {
   bool (*assign)(void* target, const void* source, const struct hlc_Assign_trait* trait, void* context);
+  bool (*reassign)(void* target, const void* source, const struct hlc_Assign_trait* trait, void* context);
 } hlc_Assign_trait;
 
 typedef struct hlc_Assign_instance {
@@ -19,6 +20,10 @@ typedef struct hlc_Assign_instance {
 
 static inline bool hlc_assign(void* target, const void* source, hlc_Assign_instance instance) {
   return instance.trait->assign(target, source, instance.trait, instance.context);
+}
+
+static inline bool hlc_reassign(void* target, const void* source, hlc_Assign_instance instance) {
+  return instance.trait->reassign(target, source, instance.trait, instance.context);
 }
 
 #define HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(t_name, t) const hlc_Assign_instance hlc_##t_name##_assign_instance
@@ -41,8 +46,26 @@ static inline bool hlc_assign(void* target, const void* source, hlc_Assign_insta
     return true;                                                \
   }                                                             \
                                                                 \
+  static bool hlc_##t_name##_reassign(                          \
+    void* _target,                                              \
+    const void* _source,                                        \
+    const hlc_Assign_trait* instance,                           \
+    void* context                                               \
+  ) {                                                           \
+    t* target = _target;                                        \
+    const t* source = _source;                                  \
+    (void)instance;                                             \
+    (void)context;                                              \
+                                                                \
+    assert(target != NULL);                                     \
+    assert(source != NULL);                                     \
+    *target = *source;                                          \
+    return true;                                                \
+  }                                                             \
+                                                                \
   static const hlc_Assign_trait hlc_##t_name##_assign_trait = { \
     .assign = hlc_##t_name##_assign,                            \
+    .reassign = hlc_##t_name##_reassign,                        \
   };                                                            \
                                                                 \
   const hlc_Assign_instance hlc_##t_name##_assign_instance = {  \

@@ -10,7 +10,6 @@
 #include "traits/assign.h"
 #include "traits/compare.h"
 #include "traits/destroy.h"
-#include "traits/reassign.h"
 
 typedef struct hlc_Map hlc_Map;
 
@@ -43,9 +42,7 @@ HLC_API bool hlc_map_insert(
   const void* key,
   const void* value,
   hlc_Assign_instance key_assign_instance,
-  hlc_Reassign_instance key_reassign_instance,
-  hlc_Assign_instance value_assign_instance,
-  hlc_Reassign_instance value_reassign_instance
+  hlc_Assign_instance value_assign_instance
 );
 
 /// @memberof hlc_Map
