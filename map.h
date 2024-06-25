@@ -25,11 +25,7 @@ HLC_API void hlc_map_create(
   hlc_Layout key_layout,
   hlc_Layout value_layout,
   hlc_Compare_instance key_compare_instance,
-  hlc_Assign_instance key_assign_instance,
-  hlc_Reassign_instance key_reassign_instance,
   hlc_Destroy_instance key_destroy_instance,
-  hlc_Assign_instance value_assign_instance,
-  hlc_Reassign_instance value_reassign_instance,
   hlc_Destroy_instance value_destroy_instance
 );
 
@@ -42,19 +38,12 @@ HLC_API size_t hlc_map_count(const hlc_Map* map);
 /// @brief Inserts a key/value pair into this map.
 /// @return true on success, false on insufficient memory.
 /// @pre map != NULL
-HLC_API bool hlc_map_insert(hlc_Map* map, const void* key, const void* value);
-
-/// @memberof hlc_Map
-/// @brief Inserts a key/value pair into this map.
-/// @return true on success, false on insufficient memory.
-/// @pre map != NULL
-HLC_API bool hlc_map_insert_with(
+HLC_API bool hlc_map_insert(
   hlc_Map* map,
   const void* key,
   const void* value,
   hlc_Assign_instance key_assign_instance,
   hlc_Reassign_instance key_reassign_instance,
-  hlc_Destroy_instance key_destroy_instance,
   hlc_Assign_instance value_assign_instance,
   hlc_Reassign_instance value_reassign_instance
 );
@@ -64,17 +53,6 @@ HLC_API bool hlc_map_insert_with(
 /// @return true on success, false if the element was not an element of this map.
 /// @pre map != NULL
 HLC_API bool hlc_map_remove(hlc_Map* map, const void* key);
-
-/// @memberof hlc_Map
-/// @brief Removes a key from this map.
-/// @return true on success, false if the element was not an element of this map.
-/// @pre map != NULL
-HLC_API bool hlc_map_remove_with(
-  hlc_Map* map,
-  const void* key,
-  hlc_Destroy_instance key_destroy_instance,
-  hlc_Destroy_instance value_destroy_instance
-);
 
 /// @memberof hlc_Map
 /// @brief Returns the value corresponding to the given key, if any.
@@ -101,15 +79,6 @@ HLC_API bool hlc_map_contains(const hlc_Map* map, const void* key);
 /// @brief Destroys this map.
 /// @pre map != NULL
 HLC_API void hlc_map_destroy(hlc_Map* map);
-
-/// @memberof hlc_Map
-/// @brief Destroys this map.
-/// @pre map != NULL
-HLC_API void hlc_map_destroy_with(
-  hlc_Map* map,
-  hlc_Destroy_instance key_destroy_instance,
-  hlc_Destroy_instance value_destroy_instance
-);
 
 /// @memberof hlc_Map
 /// @pre map != NULL && other != NULL

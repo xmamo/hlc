@@ -22,11 +22,7 @@ struct hlc_Map {
   hlc_Layout key_layout;
   hlc_Layout value_layout;
   hlc_Compare_instance key_compare_instance;
-  hlc_Assign_instance key_assign_instance;
-  hlc_Reassign_instance key_reassign_instance;
   hlc_Destroy_instance key_destroy_instance;
-  hlc_Assign_instance value_assign_instance;
-  hlc_Reassign_instance value_reassign_instance;
   hlc_Destroy_instance value_destroy_instance;
 };
 
@@ -42,11 +38,7 @@ void hlc_map_create(
   hlc_Layout key_layout,
   hlc_Layout value_layout,
   hlc_Compare_instance key_compare_instance,
-  hlc_Assign_instance key_assign_instance,
-  hlc_Reassign_instance key_reassign_instance,
   hlc_Destroy_instance key_destroy_instance,
-  hlc_Assign_instance value_assign_instance,
-  hlc_Reassign_instance value_reassign_instance,
   hlc_Destroy_instance value_destroy_instance
 ) {
   assert(map != NULL);
@@ -56,11 +48,7 @@ void hlc_map_create(
   map->key_layout = key_layout;
   map->value_layout = value_layout;
   map->key_compare_instance = key_compare_instance;
-  map->key_assign_instance = key_assign_instance;
-  map->key_reassign_instance = key_reassign_instance;
   map->key_destroy_instance = key_destroy_instance;
-  map->value_assign_instance = value_assign_instance;
-  map->value_reassign_instance = value_reassign_instance;
   map->value_destroy_instance = value_destroy_instance;
 }
 
@@ -146,29 +134,12 @@ static bool hlc_map_element_reassign(void* target, const void* _source, const hl
 }
 
 
-bool hlc_map_insert(hlc_Map* map, const void* key, const void* value) {
-  assert(map != NULL);
-
-  return hlc_map_insert_with(
-    map,
-    key,
-    value,
-    map->key_assign_instance,
-    map->key_reassign_instance,
-    map->key_destroy_instance,
-    map->value_assign_instance,
-    map->value_reassign_instance
-  );
-}
-
-
-bool hlc_map_insert_with(
+bool hlc_map_insert(
   hlc_Map* map,
   const void* key,
   const void* value,
   hlc_Assign_instance key_assign_instance,
   hlc_Reassign_instance key_reassign_instance,
-  hlc_Destroy_instance key_destroy_instance,
   hlc_Assign_instance value_assign_instance,
   hlc_Reassign_instance value_reassign_instance
 ) {
@@ -189,7 +160,7 @@ bool hlc_map_insert_with(
     .key_offset = key_offset,
     .value_offset = value_offset,
     .key_assign_instance = key_assign_instance,
-    .key_destroy_instance = key_destroy_instance,
+    .key_destroy_instance = map->key_destroy_instance,
     .value_assign_instance = value_assign_instance,
   };
 
@@ -207,7 +178,7 @@ bool hlc_map_insert_with(
     .key_offset = key_offset,
     .value_offset = value_offset,
     .key_reassign_instance = key_reassign_instance,
-    .key_destroy_instance = key_destroy_instance,
+    .key_destroy_instance = map->key_destroy_instance,
     .value_reassign_instance = value_reassign_instance,
   };
 
@@ -282,17 +253,6 @@ static void hlc_map_element_destroy(void* target, const hlc_Destroy_trait* trait
 
 bool hlc_map_remove(hlc_Map* map, const void* key) {
   assert(map != NULL);
-  return hlc_map_remove_with(map, key, map->key_destroy_instance, map->value_destroy_instance);
-}
-
-
-bool hlc_map_remove_with(
-  hlc_Map* map,
-  const void* key,
-  hlc_Destroy_instance key_destroy_instance,
-  hlc_Destroy_instance value_destroy_instance
-) {
-  assert(map != NULL);
 
   hlc_Layout element_layout = {.size = 0, .alignment = 1};
   size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
@@ -304,9 +264,9 @@ bool hlc_map_remove_with(
 
   hlc_Map_element_destroy_context element_destroy_context = {
     .key_offset = key_offset,
-    .key_destroy_instance = key_destroy_instance,
+    .key_destroy_instance = map->key_destroy_instance,
     .value_offset = value_offset,
-    .value_destroy_instance = value_destroy_instance,
+    .value_destroy_instance = map->value_destroy_instance,
   };
 
   hlc_Destroy_instance element_destroy_instance = {
@@ -370,16 +330,6 @@ bool hlc_map_contains(const hlc_Map* map, const void* key) {
 
 void hlc_map_destroy(hlc_Map* map) {
   assert(map != NULL);
-  hlc_map_destroy_with(map, map->key_destroy_instance, map->value_destroy_instance);
-}
-
-
-void hlc_map_destroy_with(
-  hlc_Map* map,
-  hlc_Destroy_instance key_destroy_instance,
-  hlc_Destroy_instance value_destroy_instance
-) {
-  assert(map != NULL);
 
   hlc_Layout element_layout = {.size = 0, .alignment = 1};
   size_t key_offset = hlc_layout_add(&element_layout, map->key_layout);
@@ -391,9 +341,9 @@ void hlc_map_destroy_with(
 
   hlc_Map_element_destroy_context element_destroy_context = {
     .key_offset = key_offset,
-    .key_destroy_instance = key_destroy_instance,
+    .key_destroy_instance = map->key_destroy_instance,
     .value_offset = value_offset,
-    .value_destroy_instance = value_destroy_instance,
+    .value_destroy_instance = map->value_destroy_instance,
   };
 
   hlc_Destroy_instance element_destroy_instance = {

@@ -19,8 +19,6 @@ struct hlc_Set {
   size_t count;
   hlc_Layout element_layout;
   hlc_Compare_instance element_compare_instance;
-  hlc_Assign_instance element_assign_instance;
-  hlc_Reassign_instance element_reassign_instance;
   hlc_Destroy_instance element_destroy_instance;
 };
 
@@ -35,8 +33,6 @@ void hlc_set_create(
   hlc_Set* set,
   hlc_Layout element_layout,
   hlc_Compare_instance element_compare_instance,
-  hlc_Assign_instance element_assign_instance,
-  hlc_Reassign_instance element_reassign_instance,
   hlc_Destroy_instance element_destroy_instance
 ) {
   assert(set != NULL);
@@ -45,8 +41,6 @@ void hlc_set_create(
   set->count = 0;
   set->element_layout = element_layout;
   set->element_compare_instance = element_compare_instance;
-  set->element_assign_instance = element_assign_instance;
-  set->element_reassign_instance = element_reassign_instance;
   set->element_destroy_instance = element_destroy_instance;
 }
 
@@ -57,19 +51,7 @@ size_t hlc_set_count(const hlc_Set* set) {
 }
 
 
-bool hlc_set_insert(hlc_Set* set, const void* element) {
-  assert(set != NULL);
-
-  return hlc_set_insert_with(
-    set,
-    element,
-    set->element_assign_instance,
-    set->element_reassign_instance
-  );
-}
-
-
-bool hlc_set_insert_with(
+bool hlc_set_insert(
   hlc_Set* set,
   const void* element,
   hlc_Assign_instance element_assign_instance,
@@ -123,12 +105,6 @@ bool hlc_set_insert_with(
 
 bool hlc_set_remove(hlc_Set* set, const void* element) {
   assert(set != NULL);
-  return hlc_set_remove_with(set, element, set->element_destroy_instance);
-}
-
-
-bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Destroy_instance element_destroy_instance) {
-  assert(set != NULL);
 
   hlc_AVL* node = set->root;
 
@@ -137,7 +113,7 @@ bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Destroy_instance
     signed char ordering = hlc_compare(element, node_element, set->element_compare_instance);
 
     if (ordering == 0) {
-      node = hlc_avl_remove(node, set->element_layout, element_destroy_instance);
+      node = hlc_avl_remove(node, set->element_layout, set->element_destroy_instance);
 
       if (node == NULL || hlc_avl_link(node, 0) == NULL) {
         set->root = node;
@@ -177,14 +153,8 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 
 void hlc_set_destroy(hlc_Set* set) {
   assert(set != NULL);
-  hlc_set_destroy_with(set, set->element_destroy_instance);
-}
-
-
-void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_instance) {
-  assert(set != NULL);
-
-  hlc_avl_delete(set->root, set->element_layout, element_destroy_instance);
+  
+  hlc_avl_delete(set->root, set->element_layout, set->element_destroy_instance);
   set->root = NULL;
   set->count = 0;
 }

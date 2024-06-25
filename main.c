@@ -64,20 +64,12 @@ int main(void) {
     }
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
-
-    hlc_set_create(
-      set,
-      HLC_LAYOUT_OF(int),
-      hlc_int_compare_instance,
-      hlc_int_assign_instance,
-      hlc_int_reassign_instance,
-      hlc_no_destroy_instance
-    );
+    hlc_set_create(set, HLC_LAYOUT_OF(int), hlc_int_compare_instance, hlc_no_destroy_instance);
 
     shuffle(random, elements, COUNT);
 
     for (size_t j = 0; j < COUNT; ++j) {
-      bool ok = hlc_set_insert(set, &elements[j]);
+      bool ok = hlc_set_insert(set, &elements[j], hlc_int_assign_instance, hlc_int_reassign_instance);
       bool contains = hlc_set_contains(set, &elements[j]);
       assert(ok && contains);
     }
@@ -115,11 +107,7 @@ int main(void) {
       HLC_LAYOUT_OF(int),
       HLC_LAYOUT_OF(double),
       hlc_int_compare_instance,
-      hlc_int_assign_instance,
-      hlc_int_reassign_instance,
       hlc_no_destroy_instance,
-      hlc_double_assign_instance,
-      hlc_double_reassign_instance,
       hlc_no_destroy_instance
     );
 
@@ -127,7 +115,17 @@ int main(void) {
 
     for (size_t j = 0; j < COUNT; ++j) {
       double value = -keys[j];
-      bool ok = hlc_map_insert(map, &keys[j], &value);
+
+      bool ok = hlc_map_insert(
+        map,
+        &keys[j],
+        &value,
+        hlc_int_assign_instance,
+        hlc_int_reassign_instance,
+        hlc_double_assign_instance,
+        hlc_double_reassign_instance
+      );
+
       bool contains = hlc_map_contains(map, &keys[j]);
       const double* lookup = hlc_map_lookup(map, &keys[j]);
       assert(ok && contains && lookup != NULL && *lookup == value);

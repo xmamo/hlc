@@ -24,8 +24,6 @@ HLC_API void hlc_set_create(
   hlc_Set* set,
   hlc_Layout element_layout,
   hlc_Compare_instance element_compare_instance,
-  hlc_Assign_instance element_assign_instance,
-  hlc_Reassign_instance element_reassign_instance,
   hlc_Destroy_instance element_destroy_instance
 );
 
@@ -38,13 +36,7 @@ HLC_API size_t hlc_set_count(const hlc_Set* set);
 /// @brief Inserts an element into this set.
 /// @return true on success, false on insufficient memory.
 /// @pre set != NULL
-HLC_API bool hlc_set_insert(hlc_Set* set, const void* element);
-
-/// @memberof hlc_Set
-/// @brief Inserts an element into this set.
-/// @return true on success, false on insufficient memory.
-/// @pre set != NULL
-HLC_API bool hlc_set_insert_with(
+HLC_API bool hlc_set_insert(
   hlc_Set* set,
   const void* element,
   hlc_Assign_instance element_assign_instance,
@@ -58,12 +50,6 @@ HLC_API bool hlc_set_insert_with(
 HLC_API bool hlc_set_remove(hlc_Set* set, const void* element);
 
 /// @memberof hlc_Set
-/// @brief Removes an element from this set.
-/// @return true on success, false if the element was not an element of this set.
-/// @pre set != NULL
-HLC_API bool hlc_set_remove_with(hlc_Set* set, const void* element, hlc_Destroy_instance element_destroy_instance);
-
-/// @memberof hlc_Set
 /// @brief Checks if this set contains the given key.
 /// @pre set != NULL
 HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
@@ -72,11 +58,6 @@ HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
 /// @brief Destroys this set.
 /// @pre set != NULL
 HLC_API void hlc_set_destroy(hlc_Set* set);
-
-/// @memberof hlc_Set
-/// @brief Destroys this set.
-/// @pre set != NULL
-HLC_API void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_instance);
 
 /// @memberof hlc_Set
 /// @pre set != NULL && other != NULL
