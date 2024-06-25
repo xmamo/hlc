@@ -347,10 +347,10 @@ static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* ancestor) {
   assert(node != NULL);
   assert(ancestor != NULL);
 
-  bool root_found = false;
+  bool ancestor_found = false;
 
   while (true) {
-    root_found |= node == ancestor;
+    ancestor_found |= node == ancestor;
     node = hlc_avl_rebalance(node);
 
     if (node->balance != 0 || HLC_AVL_LINKS(node)[0] == NULL)
@@ -361,7 +361,7 @@ static hlc_AVL* hlc_avl_update_after_removal(hlc_AVL* node, hlc_AVL* ancestor) {
     node = HLC_AVL_LINKS(node)[0];
   }
 
-  node = root_found ? node : ancestor;
+  node = ancestor_found ? node : ancestor;
   assert(node->balance >= -1 && node->balance <= +1);
   return node;
 }
@@ -569,15 +569,15 @@ void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2) {
 
 
 void hlc_avl_delete(
-  hlc_AVL* node,
+  hlc_AVL* root,
   hlc_Layout element_layout,
   hlc_Destroy_instance element_destroy_instance
 ) {
-  if (node != NULL) {
-    hlc_avl_delete(HLC_AVL_LINKS(node)[-1], element_layout, element_destroy_instance);
-    hlc_avl_delete(HLC_AVL_LINKS(node)[+1], element_layout, element_destroy_instance);
+  if (root != NULL) {
+    hlc_avl_delete(HLC_AVL_LINKS(root)[-1], element_layout, element_destroy_instance);
+    hlc_avl_delete(HLC_AVL_LINKS(root)[+1], element_layout, element_destroy_instance);
 
-    hlc_destroy(hlc_avl_element(node, element_layout), element_destroy_instance);
-    free(node);
+    hlc_destroy(hlc_avl_element(root, element_layout), element_destroy_instance);
+    free(root);
   }
 }

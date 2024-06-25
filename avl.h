@@ -121,9 +121,9 @@ HLC_API void hlc_avl_swap(hlc_AVL* node1, hlc_AVL* node2);
 
 /// @memberof hlc_AVL
 /// @brief Deletes this AVL tree.
-/// @pre node == NULL || hlc_avl_link(node, 0) == NULL
+/// @pre root == NULL || hlc_avl_link(root, 0) == NULL
 HLC_API void hlc_avl_delete(
-  hlc_AVL* node,
+  hlc_AVL* root,
   hlc_Layout element_layout,
   hlc_Destroy_instance element_destroy_instance
 );

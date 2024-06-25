@@ -25,6 +25,7 @@ HLC_API size_t hlc_layout_add(hlc_Layout* layout, hlc_Layout member);
 
 /// @memberof hlc_Layout
 /// @brief Pads this layout by making its size a multiple of its alignment.
+/// @pre layout != NULL
 HLC_API void hlc_layout_pad(hlc_Layout* layout);
 
 #endif

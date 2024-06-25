@@ -79,11 +79,13 @@ HLC_API bool hlc_map_remove_with(
 /// @memberof hlc_Map
 /// @brief Returns the value corresponding to the given key, if any.
 /// @return The value on success, or NULL if the key wasn't in this map.
+/// @pre map != NULL
 HLC_API void* hlc_map_lookup(const hlc_Map* map, const void* key);
 
 /// @memberof hlc_Map
 /// @brief Returns the value corresponding to the given key, if any.
 /// @return The value on success, or NULL if the key wasn't in this map.
+/// @pre map != NULL
 #define hlc_map_lookup(map, key) _Generic(               \
   true ? (map) : (void*)(map),                           \
   void*: hlc_map_lookup((map), (key)),                   \
@@ -92,7 +94,7 @@ HLC_API void* hlc_map_lookup(const hlc_Map* map, const void* key);
 
 /// @memberof hlc_Map
 /// @brief Checks if this map contains the given key.
-/// @pre set != NULL
+/// @pre map != NULL
 HLC_API bool hlc_map_contains(const hlc_Map* map, const void* key);
 
 /// @memberof hlc_Map
