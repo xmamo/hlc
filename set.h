@@ -78,6 +78,10 @@ HLC_API void hlc_set_destroy(hlc_Set* set);
 /// @pre set != NULL
 HLC_API void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_instance);
 
+/// @memberof hlc_Set
+/// @pre set != NULL && other != NULL
+HLC_API void hlc_set_move_reassign(hlc_Set* set, hlc_Set* other);
+
 /// @relates hlc_Set
 typedef struct hlc_Set_iterator hlc_Set_iterator;
 

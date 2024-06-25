@@ -111,6 +111,10 @@ HLC_API void hlc_map_destroy_with(
   hlc_Destroy_instance value_destroy_instance
 );
 
+/// @memberof hlc_Map
+/// @pre map != NULL && other != NULL
+HLC_API void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other);
+
 /// @relates hlc_Map
 typedef struct hlc_Map_iterator hlc_Map_iterator;
 

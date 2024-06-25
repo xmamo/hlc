@@ -190,6 +190,17 @@ void hlc_set_destroy_with(hlc_Set* set, hlc_Destroy_instance element_destroy_ins
 }
 
 
+void hlc_set_move_reassign(hlc_Set* set, hlc_Set* other) {
+  assert(set != NULL);
+  assert(other != NULL);
+
+  hlc_avl_delete(set->root, set->element_layout, set->element_destroy_instance);
+  *set = *other;
+  other->root = NULL;
+  other->count = 0;
+}
+
+
 struct hlc_Set_iterator {
   const hlc_AVL* current;
   hlc_Layout element_layout;
