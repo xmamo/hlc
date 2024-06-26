@@ -25,7 +25,7 @@ struct hlc_Map {
   hlc_Destroy_instance key_destroy_instance;
   hlc_Destroy_instance value_destroy_instance;
 
-  hlc_Layout element_layout;
+  hlc_Layout kv_layout;
   size_t key_offset;
   size_t value_offset;
 };
@@ -36,7 +36,7 @@ struct hlc_Map_iterator {
   hlc_Layout key_layout;
   hlc_Layout value_layout;
 
-  hlc_Layout element_layout;
+  hlc_Layout kv_layout;
   size_t key_offset;
   size_t value_offset;
 };
@@ -72,9 +72,9 @@ void hlc_map_create(
   map->key_destroy_instance = key_destroy_instance;
   map->value_destroy_instance = value_destroy_instance;
 
-  map->element_layout = (hlc_Layout){.size = 0, .alignment = 1};
-  map->key_offset = hlc_layout_add(&map->element_layout, key_layout);
-  map->value_offset = hlc_layout_add(&map->element_layout, value_layout);
+  map->kv_layout = (hlc_Layout){.size = 0, .alignment = 1};
+  map->key_offset = hlc_layout_add(&map->kv_layout, key_layout);
+  map->value_offset = hlc_layout_add(&map->kv_layout, value_layout);
 }
 
 
@@ -84,20 +84,20 @@ size_t hlc_map_count(const hlc_Map* map) {
 }
 
 
-typedef struct hlc_Map_element_assign_context {
-  hlc_Layout element_layout;
+typedef struct hlc_Map_kv_assign_context {
+  hlc_Layout kv_layout;
   size_t key_offset;
   size_t value_offset;
   hlc_Assign_instance key_assign_instance;
   hlc_Destroy_instance key_destroy_instance;
   hlc_Assign_instance value_assign_instance;
-} hlc_Map_element_assign_context;
+} hlc_Map_kv_assign_context;
 
 
-static bool hlc_map_element_assign(void* target, const void* _source, const hlc_Assign_trait* trait, void* _context) {
+static bool hlc_map_kv_assign(void* target, const void* _source, const hlc_Assign_trait* trait, void* _context) {
   const hlc_Map_kv_ref* source = _source;
   (void)trait;
-  const hlc_Map_element_assign_context* context = _context;
+  const hlc_Map_kv_assign_context* context = _context;
 
   assert(source != NULL);
   assert(target != NULL);
@@ -114,20 +114,20 @@ static bool hlc_map_element_assign(void* target, const void* _source, const hlc_
 }
 
 
-static bool hlc_map_element_reassign(void* target, const void* _source, const hlc_Assign_trait* trait, void* _context) {
+static bool hlc_map_kv_reassign(void* target, const void* _source, const hlc_Assign_trait* trait, void* _context) {
   const hlc_Map_kv_ref* source = _source;
   (void)trait;
-  const hlc_Map_element_assign_context* context = _context;
+  const hlc_Map_kv_assign_context* context = _context;
 
   assert(source != NULL);
   assert(target != NULL);
 
-  void* backup = HLC_STACK_ALLOCATE(context->element_layout.size);
+  void* backup = HLC_STACK_ALLOCATE(context->kv_layout.size);
 
   if (backup != NULL) {
     bool success = false;
 
-    memcpy(backup, target, context->element_layout.size);
+    memcpy(backup, target, context->kv_layout.size);
 
     if (hlc_reassign((char*)target + context->key_offset, source->key, context->key_assign_instance)) {
       if (hlc_reassign((char*)target + context->value_offset, source->value, context->value_assign_instance)) {
@@ -138,7 +138,7 @@ static bool hlc_map_element_reassign(void* target, const void* _source, const hl
     }
 
     if (!success) {
-      memcpy(target, backup, context->element_layout.size);
+      memcpy(target, backup, context->kv_layout.size);
     }
 
     HLC_STACK_FREE(backup);
@@ -160,13 +160,13 @@ bool hlc_map_insert(
 
   hlc_Map_kv_ref kv_ref = {.key = key, .value = (void*)value};
 
-  hlc_Assign_trait element_assign_trait = {
-    .assign = hlc_map_element_assign,
-    .reassign = hlc_map_element_reassign,
+  hlc_Assign_trait kv_assign_trait = {
+    .assign = hlc_map_kv_assign,
+    .reassign = hlc_map_kv_reassign,
   };
 
-  hlc_Map_element_assign_context element_assign_context = {
-    .element_layout = map->element_layout,
+  hlc_Map_kv_assign_context kv_assign_context = {
+    .kv_layout = map->kv_layout,
     .key_offset = map->key_offset,
     .value_offset = map->value_offset,
     .key_assign_instance = key_assign_instance,
@@ -174,25 +174,25 @@ bool hlc_map_insert(
     .value_assign_instance = value_assign_instance,
   };
 
-  hlc_Assign_instance element_assign_instance = {
-    .trait = &element_assign_trait,
-    .context = &element_assign_context,
+  hlc_Assign_instance kv_assign_instance = {
+    .trait = &kv_assign_trait,
+    .context = &kv_assign_context,
   };
 
   if (map->root != NULL) {
     hlc_AVL* node = map->root;
 
     while (true) {
-      void* node_element = hlc_avl_element(node, map->element_layout);
-      signed char ordering = hlc_compare(key, (char*)node_element + map->key_offset, map->key_compare_instance);
+      void* node_kv = hlc_avl_element(node, map->kv_layout);
+      signed char ordering = hlc_compare(key, (char*)node_kv + map->key_offset, map->key_compare_instance);
 
       if (ordering == 0)
-        return hlc_reassign(node_element, &kv_ref, element_assign_instance);
+        return hlc_reassign(node_kv, &kv_ref, kv_assign_instance);
 
       hlc_AVL* node_child = hlc_avl_link(node, ordering);
 
       if (node_child == NULL) {
-        node = hlc_avl_insert(node, ordering, &kv_ref, map->element_layout, element_assign_instance);
+        node = hlc_avl_insert(node, ordering, &kv_ref, map->kv_layout, kv_assign_instance);
 
         if (node != NULL) {
           if (hlc_avl_link(node, 0) == NULL) {
@@ -210,7 +210,7 @@ bool hlc_map_insert(
       node = node_child;
     }
   } else {
-    hlc_AVL* node = hlc_avl_new(&kv_ref, map->element_layout, element_assign_instance);
+    hlc_AVL* node = hlc_avl_new(&kv_ref, map->kv_layout, kv_assign_instance);
 
     if (node != NULL) {
       map->root = node;
@@ -265,11 +265,11 @@ bool hlc_map_remove(hlc_Map* map, const void* key) {
   hlc_AVL* node = map->root;
 
   while (node != NULL) {
-    void* node_element = hlc_avl_element(node, map->element_layout);
-    signed char ordering = hlc_compare(key, (char*)node_element + map->key_offset, map->key_compare_instance);
+    void* node_kv = hlc_avl_element(node, map->kv_layout);
+    signed char ordering = hlc_compare(key, (char*)node_kv + map->key_offset, map->key_compare_instance);
 
     if (ordering == 0) {
-      node = hlc_avl_remove(node, map->element_layout, element_destroy_instance);
+      node = hlc_avl_remove(node, map->kv_layout, element_destroy_instance);
 
       if (node == NULL || hlc_avl_link(node, 0) == NULL) {
         map->root = node;
@@ -293,11 +293,11 @@ void* (hlc_map_lookup)(const hlc_Map* map, const void* key) {
   hlc_AVL* node = map->root;
 
   while (node != NULL) {
-    void* node_element = hlc_avl_element(node, map->element_layout);
-    signed char ordering = hlc_compare(key, (char*)node_element + map->key_offset, map->key_compare_instance);
+    void* node_kv = hlc_avl_element(node, map->kv_layout);
+    signed char ordering = hlc_compare(key, (char*)node_kv + map->key_offset, map->key_compare_instance);
 
     if (ordering == 0) {
-      return (char*)node_element + map->value_offset;
+      return (char*)node_kv + map->value_offset;
     } else {
       node = hlc_avl_link(node, ordering);
     }
@@ -340,7 +340,7 @@ void hlc_map_destroy(hlc_Map* map) {
     .context = &element_destroy_context,
   };
 
-  hlc_avl_delete(map->root, map->element_layout, element_destroy_instance);
+  hlc_avl_delete(map->root, map->kv_layout, element_destroy_instance);
 }
 
 
@@ -364,7 +364,7 @@ void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other) {
     .context = &element_destroy_context,
   };
 
-  hlc_avl_delete(map->root, map->element_layout, element_destroy_instance);
+  hlc_avl_delete(map->root, map->kv_layout, element_destroy_instance);
   *map = *other;
   other->root = NULL;
   other->count = 0;
@@ -413,7 +413,7 @@ void hlc_map_iterator(const hlc_Map* map, hlc_Map_iterator* iterator) {
   iterator->key_layout = map->key_layout;
   iterator->value_layout = map->value_layout;
 
-  iterator->element_layout = map->element_layout;
+  iterator->kv_layout = map->kv_layout;
   iterator->key_offset = map->key_offset;
   iterator->value_offset = map->value_offset;
 }
@@ -423,7 +423,7 @@ hlc_Map_kv_ref hlc_map_iterator_next(hlc_Map_iterator* iterator) {
   assert(iterator != NULL);
 
   if (iterator->current != NULL) {
-    const void* element = hlc_avl_element(iterator->current, iterator->element_layout);
+    const void* element = hlc_avl_element(iterator->current, iterator->kv_layout);
     iterator->current = hlc_avl_xcessor(iterator->current, +1);
 
     return (hlc_Map_kv_ref){
