@@ -85,6 +85,11 @@ HLC_API void* hlc_map_lookup(const hlc_Map* map, const void* key);
 HLC_API bool hlc_map_contains(const hlc_Map* map, const void* key);
 
 /// @memberof hlc_Map
+/// @brief Clears this map.
+/// @pre map != NULL
+HLC_API void hlc_map_clear(hlc_Map* map);
+
+/// @memberof hlc_Map
 /// @brief Destroys this map.
 /// @pre map != NULL
 HLC_API void hlc_map_destroy(hlc_Map* map);

@@ -55,6 +55,11 @@ HLC_API bool hlc_set_remove(hlc_Set* set, const void* element);
 HLC_API bool hlc_set_contains(const hlc_Set* set, const void* key);
 
 /// @memberof hlc_Set
+/// @brief Clears this set.
+/// @pre set != NULL
+HLC_API void hlc_set_clear(hlc_Set* set);
+
+/// @memberof hlc_Set
 /// @brief Destroys this set.
 /// @pre set != NULL
 HLC_API void hlc_set_destroy(hlc_Set* set);

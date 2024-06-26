@@ -125,9 +125,9 @@ static bool hlc_map_element_reassign(void* target, const void* _source, const hl
   void* backup = HLC_STACK_ALLOCATE(context->element_layout.size);
 
   if (backup != NULL) {
-    memcpy(backup, target, context->element_layout.size);
-
     bool success = false;
+
+    memcpy(backup, target, context->element_layout.size);
 
     if (hlc_reassign((char*)target + context->key_offset, source->key, context->key_assign_instance)) {
       if (hlc_reassign((char*)target + context->value_offset, source->value, context->value_assign_instance)) {
@@ -312,6 +312,15 @@ bool hlc_map_contains(const hlc_Map* map, const void* key) {
 }
 
 
+void hlc_map_clear(hlc_Map* map) {
+  assert(map != NULL);
+
+  hlc_map_destroy(map);
+  map->root = NULL;
+  map->count = 0;
+}
+
+
 void hlc_map_destroy(hlc_Map* map) {
   assert(map != NULL);
 
@@ -332,8 +341,6 @@ void hlc_map_destroy(hlc_Map* map) {
   };
 
   hlc_avl_delete(map->root, map->element_layout, element_destroy_instance);
-  map->root = NULL;
-  map->count = 0;
 }
 
 

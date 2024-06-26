@@ -158,12 +158,18 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 }
 
 
-void hlc_set_destroy(hlc_Set* set) {
+void hlc_set_clear(hlc_Set* set) {
   assert(set != NULL);
 
-  hlc_avl_delete(set->root, set->element_layout, set->element_destroy_instance);
+  hlc_set_destroy(set);
   set->root = NULL;
   set->count = 0;
+}
+
+
+void hlc_set_destroy(hlc_Set* set) {
+  assert(set != NULL);
+  hlc_avl_delete(set->root, set->element_layout, set->element_destroy_instance);
 }
 
 
