@@ -8,6 +8,7 @@
 
 #include "avl.h"
 #include "layout.h"
+#include "math.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
 #include "traits/destroy.h"
@@ -22,9 +23,21 @@ struct hlc_Set {
 };
 
 
+struct hlc_Set_iterator {
+  const hlc_AVL* current;
+  hlc_Layout element_layout;
+};
+
+
 const hlc_Layout hlc_set_layout = {
   .size = offsetof(hlc_Set, element_destroy_instance) + sizeof(hlc_Destroy_instance),
   .alignment = alignof(hlc_Set),
+};
+
+
+const hlc_Layout hlc_set_iterator_layout = {
+  .size = offsetof(hlc_Set_iterator, element_layout) + sizeof(hlc_Layout),
+  .alignment = alignof(hlc_Set_iterator),
 };
 
 
@@ -147,7 +160,7 @@ bool hlc_set_contains(const hlc_Set* set, const void* key) {
 
 void hlc_set_destroy(hlc_Set* set) {
   assert(set != NULL);
-  
+
   hlc_avl_delete(set->root, set->element_layout, set->element_destroy_instance);
   set->root = NULL;
   set->count = 0;
@@ -165,16 +178,27 @@ void hlc_set_move_reassign(hlc_Set* set, hlc_Set* other) {
 }
 
 
-struct hlc_Set_iterator {
-  const hlc_AVL* current;
-  hlc_Layout element_layout;
-};
+signed char hlc_set_compare(const hlc_Set* set1, const hlc_Set* set2, hlc_Compare_instance compare_instance) {
+  assert(set1 != NULL);
+  assert(set2 != NULL);
 
+  hlc_Set_iterator iterator1;
+  hlc_set_iterator(set1, &iterator1);
 
-const hlc_Layout hlc_set_iterator_layout = {
-  .size = offsetof(hlc_Set_iterator, element_layout) + sizeof(hlc_Layout),
-  .alignment = alignof(hlc_Set_iterator),
-};
+  hlc_Set_iterator iterator2;
+  hlc_set_iterator(set2, &iterator2);
+
+  for (size_t i = 0; i < HLC_MIN(set1->count, set2->count); ++i) {
+    const void* element1 = hlc_set_iterator_next(&iterator1);
+    const void* element2 = hlc_set_iterator_next(&iterator2);
+    signed char ordering = hlc_compare(element1, element2, compare_instance);
+
+    if (ordering != 0)
+      return ordering;
+  }
+
+  return HLC_COMPARE(set1->count, set2->count);
+}
 
 
 void hlc_set_iterator(const hlc_Set* set, hlc_Set_iterator* iterator) {

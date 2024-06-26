@@ -13,8 +13,20 @@
 
 typedef struct hlc_Map hlc_Map;
 
+/// @relates hlc_Map
+typedef struct hlc_Map_iterator hlc_Map_iterator;
+
+/// @relates hlc_Map_iterator
+typedef struct hlc_Map_kv_ref {
+  const void* key;
+  void* value;
+} hlc_Map_kv_ref;
+
 /// @memberof hlc_Map
 extern HLC_API const hlc_Layout hlc_map_layout;
+
+/// @memberof hlc_Map_iterator
+extern HLC_API const hlc_Layout hlc_map_iterator_layout;
 
 /// @memberof hlc_Map
 /// @brief Creates an empty map.
@@ -81,17 +93,15 @@ HLC_API void hlc_map_destroy(hlc_Map* map);
 /// @pre map != NULL && other != NULL
 HLC_API void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other);
 
-/// @relates hlc_Map
-typedef struct hlc_Map_iterator hlc_Map_iterator;
-
-/// @memberof hlc_Map_iterator
-extern HLC_API const hlc_Layout hlc_map_iterator_layout;
-
-/// @relates hlc_Map_iterator
-typedef struct hlc_Map_kv_ref {
-  const void* key;
-  void* value;
-} hlc_Map_kv_ref;
+/// @brief hlc_Map
+/// @brief Compares two maps.
+/// @pre map1 != NULL && map2 != NULL
+HLC_API signed char hlc_map_compare(
+  const hlc_Map* map1,
+  const hlc_Map* map2,
+  hlc_Compare_instance key_compare_instance,
+  hlc_Compare_instance value_compare_instance
+);
 
 /// @memberof hlc_Map
 /// @relates hlc_Map_iterator

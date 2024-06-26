@@ -9,6 +9,7 @@
 
 #include "avl.h"
 #include "layout.h"
+#include "math.h"
 #include "stack.h"
 #include "traits/assign.h"
 #include "traits/compare.h"
@@ -26,9 +27,22 @@ struct hlc_Map {
 };
 
 
+struct hlc_Map_iterator {
+  hlc_AVL* current;
+  hlc_Layout key_layout;
+  hlc_Layout value_layout;
+};
+
+
 const hlc_Layout hlc_map_layout = {
   .size = offsetof(hlc_Map, value_destroy_instance) + sizeof(hlc_Destroy_instance),
   .alignment = alignof(hlc_Map),
+};
+
+
+const hlc_Layout hlc_map_iterator_layout = {
+  .size = offsetof(hlc_Map_iterator, value_layout) + sizeof(hlc_Layout),
+  .alignment = alignof(hlc_Map_iterator),
 };
 
 
@@ -358,17 +372,38 @@ void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other) {
 }
 
 
-struct hlc_Map_iterator {
-  hlc_AVL* current;
-  hlc_Layout key_layout;
-  hlc_Layout value_layout;
-};
+signed char hlc_map_compare(
+  const hlc_Map* map1,
+  const hlc_Map* map2,
+  hlc_Compare_instance key_compare_instance,
+  hlc_Compare_instance value_compare_instance
+) {
+  assert(map1 != NULL);
+  assert(map2 != NULL);
 
+  hlc_Map_iterator iterator1;
+  hlc_map_iterator(map1, &iterator1);
 
-const hlc_Layout hlc_map_iterator_layout = {
-  .size = offsetof(hlc_Map_iterator, value_layout) + sizeof(hlc_Layout),
-  .alignment = alignof(hlc_Map_iterator),
-};
+  hlc_Map_iterator iterator2;
+  hlc_map_iterator(map2, &iterator2);
+
+  for (size_t i = 0; i < HLC_MIN(map1->count, map2->count); ++i) {
+    hlc_Map_kv_ref kv_ref_1 = hlc_map_iterator_next(&iterator1);
+    hlc_Map_kv_ref kv_ref_2 = hlc_map_iterator_next(&iterator2);
+
+    signed char ordering = hlc_compare(kv_ref_1.key, kv_ref_2.key, key_compare_instance);
+
+    if (ordering != 0)
+      return ordering;
+
+    ordering = hlc_compare(kv_ref_1.value, kv_ref_2.value, value_compare_instance);
+
+    if (ordering != 0)
+      return ordering;
+  }
+
+  return HLC_COMPARE(map1->count, map2->count);
+}
 
 
 void hlc_map_iterator(const hlc_Map* map, hlc_Map_iterator* iterator) {

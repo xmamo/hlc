@@ -13,8 +13,14 @@
 
 typedef struct hlc_Set hlc_Set;
 
+/// @relates hlc_Set
+typedef struct hlc_Set_iterator hlc_Set_iterator;
+
 /// @memberof hlc_Set
 extern HLC_API const hlc_Layout hlc_set_layout;
+
+/// @memberof hlc_Set_iterator
+extern HLC_API const hlc_Layout hlc_set_iterator_layout;
 
 /// @memberof hlc_Set
 /// @brief Creates an empty set.
@@ -57,11 +63,10 @@ HLC_API void hlc_set_destroy(hlc_Set* set);
 /// @pre set != NULL && other != NULL
 HLC_API void hlc_set_move_reassign(hlc_Set* set, hlc_Set* other);
 
-/// @relates hlc_Set
-typedef struct hlc_Set_iterator hlc_Set_iterator;
-
-/// @memberof hlc_Set_iterator
-extern HLC_API const hlc_Layout hlc_set_iterator_layout;
+/// @brief hlc_Set
+/// @brief Compares two sets.
+/// @pre set1 != NULL && set2 != NULL
+HLC_API signed char hlc_set_compare(const hlc_Set* set1, const hlc_Set* set2, hlc_Compare_instance compare_instance);
 
 /// @memberof hlc_Set
 /// @relates hlc_Set_iterator
