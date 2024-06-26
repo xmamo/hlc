@@ -336,19 +336,19 @@ void hlc_map_destroy(hlc_Map* map) {
 }
 
 
-void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other) {
-  assert(map != NULL);
-  assert(other != NULL);
+void hlc_map_move_reassign(hlc_Map* target, hlc_Map* source) {
+  assert(target != NULL);
+  assert(source != NULL);
 
   hlc_Destroy_trait element_destroy_trait = {
     .destroy = hlc_map_element_destroy,
   };
 
   hlc_Map_element_destroy_context element_destroy_context = {
-    .key_offset = map->key_offset,
-    .value_offset = map->value_offset,
-    .key_destroy_instance = map->key_destroy_instance,
-    .value_destroy_instance = map->value_destroy_instance,
+    .key_offset = target->key_offset,
+    .value_offset = target->value_offset,
+    .key_destroy_instance = target->key_destroy_instance,
+    .value_destroy_instance = target->value_destroy_instance,
   };
 
   hlc_Destroy_instance element_destroy_instance = {
@@ -356,10 +356,11 @@ void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other) {
     .context = &element_destroy_context,
   };
 
-  hlc_avl_delete(map->root, map->kv_layout, element_destroy_instance);
-  *map = *other;
-  other->root = NULL;
-  other->count = 0;
+  hlc_avl_delete(target->root, target->kv_layout, element_destroy_instance);
+  *target = *source;
+
+  source->root = NULL;
+  source->count = 0;
 }
 
 

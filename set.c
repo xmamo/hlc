@@ -164,14 +164,15 @@ void hlc_set_destroy(hlc_Set* set) {
 }
 
 
-void hlc_set_move_reassign(hlc_Set* set, hlc_Set* other) {
-  assert(set != NULL);
-  assert(other != NULL);
+void hlc_set_move_reassign(hlc_Set* target, hlc_Set* source) {
+  assert(target != NULL);
+  assert(source != NULL);
 
-  hlc_avl_delete(set->root, set->element_layout, set->element_destroy_instance);
-  *set = *other;
-  other->root = NULL;
-  other->count = 0;
+  hlc_avl_delete(target->root, target->element_layout, target->element_destroy_instance);
+  *target = *source;
+
+  source->root = NULL;
+  source->count = 0;
 }
 
 

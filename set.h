@@ -67,8 +67,8 @@ HLC_API void hlc_set_clear(hlc_Set* set);
 HLC_API void hlc_set_destroy(hlc_Set* set);
 
 /// @memberof hlc_Set
-/// @pre set != NULL && other != NULL
-HLC_API void hlc_set_move_reassign(hlc_Set* set, hlc_Set* other);
+/// @pre target != NULL && source != NULL
+HLC_API void hlc_set_move_reassign(hlc_Set* target, hlc_Set* source);
 
 /// @brief hlc_Set
 /// @brief Compares two sets.

@@ -49,6 +49,8 @@ int main(void) {
   #endif
 
   hlc_Random* random = HLC_STACK_ALLOCATE(hlc_random_layout.size);
+  assert(random != NULL);
+
   hlc_random_create(random);
 
   puts("Testing hlc_Set:");
@@ -64,6 +66,7 @@ int main(void) {
     }
 
     hlc_Set* set = HLC_STACK_ALLOCATE(hlc_set_layout.size);
+    assert(set != NULL);
 
     hlc_set_create(
       set,
@@ -107,6 +110,7 @@ int main(void) {
     }
 
     hlc_Map* map = HLC_STACK_ALLOCATE(hlc_map_layout.size);
+    assert(map != NULL);
 
     hlc_map_create(
       map,

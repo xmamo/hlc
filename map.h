@@ -97,8 +97,8 @@ HLC_API void hlc_map_clear(hlc_Map* map);
 HLC_API void hlc_map_destroy(hlc_Map* map);
 
 /// @memberof hlc_Map
-/// @pre map != NULL && other != NULL
-HLC_API void hlc_map_move_reassign(hlc_Map* map, hlc_Map* other);
+/// @pre target != NULL && source != NULL
+HLC_API void hlc_map_move_reassign(hlc_Map* target, hlc_Map* source);
 
 /// @brief hlc_Map
 /// @brief Compares two maps.
