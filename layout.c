@@ -8,7 +8,7 @@ size_t hlc_layout_add(hlc_Layout* layout, hlc_Layout member) {
   assert(layout != NULL);
 
   size_t member_size = member.size;
-  size_t member_alignment = member.alignment != 0 ? member.alignment : 1;
+  size_t member_alignment = member.alignment > 0 ? member.alignment : 1;
   size_t member_offset = (layout->size + (member_alignment - 1)) / member_alignment * member_alignment;
 
   layout->size = member_offset + member_size;
@@ -24,9 +24,9 @@ size_t hlc_layout_add(hlc_Layout* layout, hlc_Layout member) {
 void hlc_layout_pad(hlc_Layout* layout) {
   assert(layout != NULL);
 
-  if (layout->alignment < 1) {
+  if (layout->alignment <= 0) {
     layout->alignment = 1;
   }
 
-  layout->size = ((layout->size + (layout->alignment - 1)) / layout->alignment) * layout->alignment;
+  layout->size = (layout->size + (layout->alignment - 1)) / layout->alignment * layout->alignment;
 }

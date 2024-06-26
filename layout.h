@@ -14,10 +14,7 @@ typedef struct hlc_Layout {
 } hlc_Layout;
 
 /// @relates hlc_Layout
-#define HLC_LAYOUT_OF(t) ((hlc_Layout){ \
-  .size = sizeof(t),                    \
-  .alignment = alignof(t),              \
-})
+#define HLC_LAYOUT_OF(t) ((hlc_Layout){sizeof(t), alignof(t)})
 
 /// @memberof hlc_Layout
 /// @brief Adds a member to this layout.
