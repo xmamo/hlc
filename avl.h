@@ -10,6 +10,8 @@
 #include "traits/assign.h"
 #include "traits/destroy.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_AVL hlc_AVL;
 
 /// @memberof hlc_AVL
@@ -127,5 +129,7 @@ HLC_API void hlc_avl_delete(
   hlc_Layout element_layout,
   hlc_Destroy_instance element_destroy_instance
 );
+
+HLC_DECLARATIONS_END
 
 #endif

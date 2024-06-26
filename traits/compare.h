@@ -7,6 +7,8 @@
 
 #include "../api.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Compare_trait {
   signed char (*compare)(const void* x, const void* y, const struct hlc_Compare_trait* trait, void* context);
 } hlc_Compare_trait;
@@ -65,5 +67,7 @@ extern HLC_API HLC_DECLARE_PRIMITIVE_COMPARE_INSTANCE(ptrdiff, ptrdiff_t);
 
 extern HLC_API HLC_DECLARE_PRIMITIVE_COMPARE_INSTANCE(char, char);
 extern HLC_API HLC_DECLARE_PRIMITIVE_COMPARE_INSTANCE(wchar, wchar_t);
+
+HLC_DECLARATIONS_END
 
 #endif

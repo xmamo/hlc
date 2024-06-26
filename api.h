@@ -1,6 +1,14 @@
 #ifndef HLC_API_H
 #define HLC_API_H
 
+#ifdef __cplusplus
+  #define HLC_DECLARATIONS_BEGIN extern "C" {
+  #define HLC_DECLARATIONS_END }
+#else
+  #define HLC_DECLARATIONS_BEGIN
+  #define HLC_DECLARATIONS_END
+#endif
+
 #ifdef HLC_EXPORTS
   #if defined(__GNUC__)
     #define HLC_API __attribute__((visibility("default")))

@@ -11,6 +11,8 @@
 #include "traits/compare.h"
 #include "traits/destroy.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Map hlc_Map;
 
 /// @memberof hlc_Map
@@ -119,5 +121,7 @@ HLC_API void hlc_map_iterator(const hlc_Map* map, hlc_Map_iterator* iterator);
 /// @return Pointers to the current key and value, or a pair of NULLs if the last key/value pair of the map was reached.
 /// @pre iterator != NULL
 HLC_API hlc_Map_kv_ref hlc_map_iterator_next(hlc_Map_iterator* iterator);
+
+HLC_DECLARATIONS_END
 
 #endif

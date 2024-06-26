@@ -11,6 +11,8 @@
 #include "traits/compare.h"
 #include "traits/destroy.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Set hlc_Set;
 
 /// @memberof hlc_Set
@@ -84,5 +86,7 @@ HLC_API void hlc_set_iterator(const hlc_Set* set, hlc_Set_iterator* iterator);
 /// @return The current element, or NULL if the last element of the set was reached.
 /// @pre iterator != NULL
 HLC_API const void* hlc_set_iterator_next(hlc_Set_iterator* iterator);
+
+HLC_DECLARATIONS_END
 
 #endif

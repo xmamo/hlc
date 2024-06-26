@@ -6,6 +6,8 @@
 #include "api.h"
 #include "layout.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Random hlc_Random;
 
 /// @memberof hlc_Random
@@ -50,5 +52,7 @@ HLC_API unsigned long long hlc_random_ullong_in(hlc_Random* random, unsigned lon
 /// @brief Produces a random size_t in the range [min, max].
 /// @pre random != NULL && min <= max
 HLC_API size_t hlc_random_size_in(hlc_Random* random, size_t min, size_t max);
+
+HLC_DECLARATIONS_END
 
 #endif

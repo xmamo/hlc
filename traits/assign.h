@@ -8,6 +8,8 @@
 
 #include "../api.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Assign_trait {
   bool (*assign)(void* target, const void* source, const struct hlc_Assign_trait* trait, void* context);
   bool (*reassign)(void* target, const void* source, const struct hlc_Assign_trait* trait, void* context);
@@ -96,5 +98,7 @@ extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(ptrdiff, ptrdiff_t);
 
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(char, char);
 extern HLC_API HLC_DECLARE_PRIMITIVE_ASSIGN_INSTANCE(wchar, wchar_t);
+
+HLC_DECLARATIONS_END
 
 #endif

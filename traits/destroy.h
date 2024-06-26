@@ -3,6 +3,8 @@
 
 #include "../api.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Destroy_trait {
   void (*destroy)(void* target, const struct hlc_Destroy_trait* trait, void* context);
 } hlc_Destroy_trait;
@@ -17,5 +19,7 @@ static inline void hlc_destroy(void* target, hlc_Destroy_instance instance) {
 }
 
 extern HLC_API const hlc_Destroy_instance hlc_no_destroy_instance;
+
+HLC_DECLARATIONS_END
 
 #endif

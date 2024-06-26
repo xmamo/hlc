@@ -6,6 +6,8 @@
 
 #include "api.h"
 
+HLC_DECLARATIONS_BEGIN
+
 typedef struct hlc_Layout {
   size_t size;
   size_t alignment;
@@ -27,5 +29,7 @@ HLC_API size_t hlc_layout_add(hlc_Layout* layout, hlc_Layout member);
 /// @brief Pads this layout by making its size a multiple of its alignment.
 /// @pre layout != NULL
 HLC_API void hlc_layout_pad(hlc_Layout* layout);
+
+HLC_DECLARATIONS_END
 
 #endif
