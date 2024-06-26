@@ -23,12 +23,6 @@ struct hlc_AVL {
 };
 
 
-#define HLC_AVL_LAYOUT ((hlc_Layout){                       \
-  .size = offsetof(hlc_AVL, balance) + sizeof(signed char), \
-  .alignment = alignof(hlc_AVL),                            \
-})
-
-
 #define HLC_AVL_LINKS(node) _Generic(                                                                  \
   true ? (node) : (void*)(node),                                                                       \
   void*: (hlc_AVL**)((char*)(node) + (offsetof(hlc_AVL, _links) + sizeof(hlc_AVL*))),                  \
@@ -41,8 +35,10 @@ hlc_AVL* hlc_avl_new(
   hlc_Layout element_layout,
   hlc_Assign_instance element_assign_instance
 ) {
-  hlc_Layout node_layout = HLC_AVL_LAYOUT;
+  hlc_Layout node_layout = {.size = offsetof(hlc_AVL, balance) + sizeof(signed char), .alignment = alignof(hlc_AVL)};
   size_t element_offset = hlc_layout_add(&node_layout, element_layout);
+  hlc_layout_pad(&node_layout);
+
   hlc_AVL* node = malloc(node_layout.size);
 
   if (node != NULL) {
@@ -84,8 +80,9 @@ hlc_AVL* (hlc_avl_link)(const hlc_AVL* node, signed char direction) {
 void* (hlc_avl_element)(const hlc_AVL* node, hlc_Layout element_layout) {
   assert(node != NULL);
 
-  hlc_Layout node_layout = HLC_AVL_LAYOUT;
+  hlc_Layout node_layout = {.size = offsetof(hlc_AVL, balance) + sizeof(signed char), .alignment = alignof(hlc_AVL)};
   size_t element_offset = hlc_layout_add(&node_layout, element_layout);
+
   return (char*)node + element_offset;
 }
 

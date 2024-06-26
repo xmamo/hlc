@@ -1,7 +1,6 @@
 #include "map.h"
 
 #include <assert.h>
-#include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -30,6 +29,8 @@ struct hlc_Map {
   size_t value_offset;
 };
 
+const hlc_Layout hlc_map_layout = HLC_LAYOUT_OF(hlc_Map);
+
 
 struct hlc_Map_iterator {
   hlc_AVL* current;
@@ -41,17 +42,7 @@ struct hlc_Map_iterator {
   size_t value_offset;
 };
 
-
-const hlc_Layout hlc_map_layout = {
-  .size = offsetof(hlc_Map, value_offset) + sizeof(size_t),
-  .alignment = alignof(hlc_Map),
-};
-
-
-const hlc_Layout hlc_map_iterator_layout = {
-  .size = offsetof(hlc_Map_iterator, value_offset) + sizeof(size_t),
-  .alignment = alignof(hlc_Map_iterator),
-};
+const hlc_Layout hlc_map_iterator_layout = HLC_LAYOUT_OF(hlc_Map_iterator);
 
 
 void hlc_map_create(
@@ -75,6 +66,7 @@ void hlc_map_create(
   map->kv_layout = (hlc_Layout){.size = 0, .alignment = 1};
   map->key_offset = hlc_layout_add(&map->kv_layout, key_layout);
   map->value_offset = hlc_layout_add(&map->kv_layout, value_layout);
+  hlc_layout_pad(&map->kv_layout);
 }
 
 

@@ -13,20 +13,20 @@
 
 typedef struct hlc_Map hlc_Map;
 
+/// @memberof hlc_Map
+extern HLC_API const hlc_Layout hlc_map_layout;
+
 /// @relates hlc_Map
 typedef struct hlc_Map_iterator hlc_Map_iterator;
+
+/// @memberof hlc_Map_iterator
+extern HLC_API const hlc_Layout hlc_map_iterator_layout;
 
 /// @relates hlc_Map_iterator
 typedef struct hlc_Map_kv_ref {
   const void* key;
   void* value;
 } hlc_Map_kv_ref;
-
-/// @memberof hlc_Map
-extern HLC_API const hlc_Layout hlc_map_layout;
-
-/// @memberof hlc_Map_iterator
-extern HLC_API const hlc_Layout hlc_map_iterator_layout;
 
 /// @memberof hlc_Map
 /// @brief Creates an empty map.

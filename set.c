@@ -1,7 +1,6 @@
 #include "set.h"
 
 #include <assert.h>
-#include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -22,23 +21,15 @@ struct hlc_Set {
   hlc_Destroy_instance element_destroy_instance;
 };
 
+const hlc_Layout hlc_set_layout = HLC_LAYOUT_OF(hlc_Set);
+
 
 struct hlc_Set_iterator {
   const hlc_AVL* current;
   hlc_Layout element_layout;
 };
 
-
-const hlc_Layout hlc_set_layout = {
-  .size = offsetof(hlc_Set, element_destroy_instance) + sizeof(hlc_Destroy_instance),
-  .alignment = alignof(hlc_Set),
-};
-
-
-const hlc_Layout hlc_set_iterator_layout = {
-  .size = offsetof(hlc_Set_iterator, element_layout) + sizeof(hlc_Layout),
-  .alignment = alignof(hlc_Set_iterator),
-};
+const hlc_Layout hlc_set_iterator_layout = HLC_LAYOUT_OF(hlc_Set_iterator);
 
 
 void hlc_set_create(

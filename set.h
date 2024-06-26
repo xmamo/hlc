@@ -13,11 +13,11 @@
 
 typedef struct hlc_Set hlc_Set;
 
-/// @relates hlc_Set
-typedef struct hlc_Set_iterator hlc_Set_iterator;
-
 /// @memberof hlc_Set
 extern HLC_API const hlc_Layout hlc_set_layout;
+
+/// @relates hlc_Set
+typedef struct hlc_Set_iterator hlc_Set_iterator;
 
 /// @memberof hlc_Set_iterator
 extern HLC_API const hlc_Layout hlc_set_iterator_layout;
