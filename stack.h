@@ -8,6 +8,11 @@
 
     #define HLC_STACK_ALLOCATE(size) _malloca((size))
     #define HLC_STACK_FREE(memory) _freea((memory))
+  #elif __has_include(<alloca.h>)
+    #include <alloca.h>
+
+    #define HLC_STACK_ALLOCATE(size) alloca((size))
+    #define HLC_STACK_FREE(memory) (void)(memory)
   #endif
 #endif
 
@@ -17,13 +22,8 @@
 
   #include <stdlib.h>
 
-  #ifdef alloca
-    #define HLC_STACK_ALLOCATE(size) alloca((size))
-    #define HLC_STACK_FREE(memory) (void)(memory)
-  #else
-    #define HLC_STACK_ALLOCATE(size) malloc((size))
-    #define HLC_STACK_FREE(memory) free((memory))
-  #endif
+  #define HLC_STACK_ALLOCATE(size) malloc((size))
+  #define HLC_STACK_FREE(memory) free((memory))
 #endif
 
 #endif
