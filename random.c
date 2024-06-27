@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
+#include <stdalign.h>
 #include <stddef.h>
 #include <time.h>
 
@@ -41,7 +42,7 @@ struct hlc_Random {
   size_t i;
 };
 
-const hlc_Layout hlc_random_layout = HLC_LAYOUT_OF(hlc_Random);
+const hlc_Layout hlc_random_layout = {.size = sizeof(hlc_Random), .alignment = alignof(hlc_Random)};
 
 
 void hlc_random_create(hlc_Random* random) {
